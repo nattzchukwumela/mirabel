@@ -58,7 +58,13 @@ The gallery reads **`public/images/manifest.json`**. Each entry contains:
 
 Put display photos in `public/images/`, then add or update their entries in the manifest, including dimensions, alt text, focal position, and `caption`. Keep original files in `public/images/originals/`. The gallery reads captions from the manifest and repeats its decorative rotations automatically, so it supports additional photos without editing component arrays. Remove a photograph's manifest entry and its display file to take it out of the gallery.
 
-The welcome uses `/images/hero.jpg`, and the profile uses `/images/mirabel-headphones.jpg`. Replace those files directly or update the corresponding `Image` references and alt text in **`src/components/experience.tsx`**. `public/og-image.jpg` is the custom 1200 × 630 share preview with Mirabel's actual portrait.
+The welcome uses `/images/hero.jpg`, and the profile uses `/images/mirabel-headphones.jpg`. Replace those files directly or update the corresponding `Image` references and alt text in **`src/components/experience.tsx`**.
+
+## Link preview image
+
+**`public/og.jpg`** is the supplied 1600 × 840 JPEG used for Open Graph and X/Twitter link previews. Its absolute URL, dimensions, content type, and image description are configured in **`src/app/layout.tsx`** and included in the generated HTML.
+
+When deploying to another domain, set **`NEXT_PUBLIC_SITE_URL`** to the full production origin, such as `https://your-domain.com`, before building. It defaults to the current Sites URL. The page and image must be accessible to preview crawlers without signing in; the current owner-only Sites deployment cannot provide public social previews. Existing previews may remain cached by the sharing app after a deployment.
 
 ## Add the original lullaby
 
@@ -84,7 +90,7 @@ Fonts are hosted locally in `public/fonts/`; no Google Fonts request is needed a
 
 The Sites deployment is **private and owner-only** unless its sharing settings are changed. The share control copies the current link; copying it does not grant access to another person. Change the Site's sharing/audience settings before sending it to Mirabel. This privacy is supplied by hosting, not by an application login. The site also asks search engines not to index or follow it.
 
-If you move to another host or domain, update `metadataBase` in `src/app/layout.tsx` so social previews resolve correctly, then rebuild. Anyone granted access can view the photographs served by that deployment.
+If you move to another host or domain, set `NEXT_PUBLIC_SITE_URL` to the new production origin and rebuild so social previews resolve correctly. Anyone granted access can view the photographs served by that deployment.
 
 ## Verification
 
