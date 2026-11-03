@@ -2,7 +2,7 @@
 
 A playful, personal appreciation website celebrating Mirabel's kindness and friendship. The story moves from a teasing welcome through her personality and interests, into a sincere letter, a joyful surprise, and a quiet final reminder. The tone is explicitly about gratitude and friendship.
 
-The complete application lives in **`experience/`**, beside the original `her/` photo folder. It uses Next.js App Router, TypeScript, Tailwind CSS, Motion, and Lucide icons. There is no database, application login, payment system, or backend.
+The complete application lives in **`experience/`**, with all supplied photographs inside `public/images/`. It uses Next.js App Router, TypeScript, Tailwind CSS, Motion, and Lucide icons. There is no database, application login, payment system, or backend.
 
 ## Run locally
 
@@ -10,16 +10,16 @@ From the repository root:
 
 ```bash
 cd experience
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 
 Open `http://localhost:3000`. Use Node.js 20.9 or newer.
 
 ```bash
-npm run typecheck
-npm test
-npm run build
+pnpm typecheck
+pnpm test
+pnpm build
 ```
 
 The production build is a **static export in `out/`**. Serve that directory with any static host. For a local production preview, `npx serve out` works. This project does not require a running Next.js server in production.
@@ -29,7 +29,7 @@ The production build is a **static export in `out/`**. Serve that directory with
 - An animated welcome, photo keepsake, handwritten notes, scroll progress, chapter navigation, and smooth transitions.
 - A playful character dossier with animated personality statistics and a hidden note.
 - Four interactive interest chapters: a touch- and keyboard-friendly volleyball keep-up game, a virtual Navessa Allen bookshelf, a compliment terminal, and a warm faith scene.
-- A swipeable nine-photo scrapbook with full-size viewing, arrow-key navigation, and accessible dialog controls.
+- A swipeable 13-photo scrapbook with full-size viewing, arrow-key navigation, and accessible dialog controls.
 - An envelope that opens into the complete appreciation letter. The letter unfolds progressively, with a **Read it all** control to reveal it immediately.
 - A humorous appreciation meter that refuses to go below 100%, celebrates increases, and plays optional sound effects.
 - An animated mystery present, sparkles, and confetti. Its reveal keeps the physical gift secret.
@@ -41,7 +41,7 @@ Music is **off on every initial visit** and starts only after an explicit press 
 
 ## Personalize the photographs
 
-The photos supplied in `her/` have been copied, optimized, and given descriptive names in `public/images/`. The originals remain untouched. The optimized JPEGs have been re-encoded without EXIF metadata; the cap/casual photographs also have their black letterboxes removed.
+All 13 supplied originals have been moved from the former `her/` folder into **`public/images/originals/`**, preserving their filenames and file contents. The gallery uses smaller, descriptively named JPEGs directly in **`public/images/`**. The deleted photograph has been removed from both the gallery and its optimized assets. Optimized JPEGs have no EXIF metadata; black bars and the screenshot footer are cropped where applicable.
 
 The gallery reads **`public/images/manifest.json`**. Each entry contains:
 
@@ -51,11 +51,12 @@ The gallery reads **`public/images/manifest.json`**. Each entry contains:
   "alt": "A clear description of the photograph",
   "width": 960,
   "height": 1280,
-  "objectPosition": "50% 42%"
+  "objectPosition": "50% 42%",
+  "caption": "A little moment worth keeping."
 }
 ```
 
-Put replacement photos in `public/images/`, then update the manifest's paths, dimensions, descriptions, and focal positions. Gallery captions and print rotations are defined in **`src/components/photo-gallery.tsx`** (`CAPTIONS` and `ROTATIONS`); keep those arrays aligned with the manifest when changing the number or order of photographs.
+Put display photos in `public/images/`, then add or update their entries in the manifest, including dimensions, alt text, focal position, and `caption`. Keep original files in `public/images/originals/`. The gallery reads captions from the manifest and repeats its decorative rotations automatically, so it supports additional photos without editing component arrays. Remove a photograph's manifest entry and its display file to take it out of the gallery.
 
 The welcome uses `/images/hero.jpg`, and the profile uses `/images/mirabel-headphones.jpg`. Replace those files directly or update the corresponding `Image` references and alt text in **`src/components/experience.tsx`**. `public/og-image.jpg` is the custom 1200 × 630 share preview with Mirabel's actual portrait.
 
@@ -87,6 +88,6 @@ If you move to another host or domain, update `metadataBase` in `src/app/layout.
 
 ## Verification
 
-Ten automated interaction tests cover the letter, appreciation meter, interest tabs, gift reveal, theme, hidden ability, gallery, lullaby, sound-panel keyboard focus, and volleyball keyboard controls. Run them with `npm test`. These use jsdom and do not replace visual device testing. Browser visual QA was unavailable in the build environment.
+Ten automated interaction tests cover the letter, appreciation meter, interest tabs, gift reveal, theme, hidden ability, gallery, lullaby, sound-panel keyboard focus, and volleyball keyboard controls. Run them with `pnpm test`. These use jsdom and do not replace visual device testing. Browser visual QA was unavailable in the build environment.
 
 The build uses Next.js’s supported Webpack compiler and in-process TypeScript checking for compatibility with restricted environments.

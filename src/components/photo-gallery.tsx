@@ -12,17 +12,6 @@ import {
 import photos from "../../public/images/manifest.json";
 import styles from "./photo-gallery.module.css";
 
-const CAPTIONS = [
-  "Quite simply, Mirabel.",
-  "A little sunshine, personified.",
-  "Good music. Better energy.",
-  "Her own kind of golden.",
-  "The girl behind this whole thing.",
-  "Main character, obviously.",
-  "Effortlessly herself.",
-  "A very serious person. Clearly.",
-  "Even the quiet frames shine.",
-];
 const ROTATIONS = [-3, 2, -1.8, 3, -2.4, 1.6, -2, 2.5, -1];
 
 export default function PhotoGallery() {
@@ -124,7 +113,9 @@ export default function PhotoGallery() {
               type="button"
               className={styles.polaroid}
               style={
-                { "--rotation": `${ROTATIONS[index]}deg` } as CSSProperties
+                {
+                  "--rotation": `${ROTATIONS[index % ROTATIONS.length]}deg`,
+                } as CSSProperties
               }
               aria-label={`Enlarge photograph ${index + 1}: ${item.alt}`}
               onClick={(event) => {
@@ -144,8 +135,10 @@ export default function PhotoGallery() {
                   <Expand size={16} aria-hidden="true" />
                 </span>
               </span>
-              <span className={styles.caption}>{CAPTIONS[index]}</span>
-              <span className={styles.photoNumber}>0{index + 1}</span>
+              <span className={styles.caption}>{item.caption}</span>
+              <span className={styles.photoNumber}>
+                {String(index + 1).padStart(2, "0")}
+              </span>
             </button>
           ))}
         </div>
@@ -226,7 +219,7 @@ export default function PhotoGallery() {
               <ArrowLeft size={19} />
             </button>
             <div aria-live="polite" aria-atomic="true">
-              <p id="photo-caption">{CAPTIONS[selected ?? 0]}</p>
+              <p id="photo-caption">{photo.caption}</p>
               <span>
                 {(selected ?? 0) + 1} / {photos.length}
               </span>

@@ -3,6 +3,7 @@ import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import Experience from "@/components/experience";
 import { letter } from "@/lib/personalization";
+import photos from "../../public/images/manifest.json";
 
 describe("The Mirabel Experience", () => {
   it("opens the letter and makes every supplied paragraph available", async () => {
@@ -180,14 +181,26 @@ describe("The Mirabel Experience", () => {
     });
     expect((dialog as HTMLDialogElement).open).toBe(true);
     expect(document.body.style.overflow).toBe("hidden");
-    expect(within(dialog).getByText("1 / 9")).toBeTruthy();
+    expect(within(dialog).getByText(`1 / ${photos.length}`)).toBeTruthy();
+    await user.click(
+      within(dialog).getByRole("button", { name: "Previous photograph" }),
+    );
+    expect(
+      within(dialog).getByText(`${photos.length} / ${photos.length}`),
+    ).toBeTruthy();
+    expect(
+      within(dialog).getByRole("img", { name: photos.at(-1)!.alt }),
+    ).toBeTruthy();
+    await user.click(
+      within(dialog).getByRole("button", { name: "Next photograph" }),
+    );
     await user.click(
       within(dialog).getByRole("button", { name: "Next photograph" }),
     );
     expect(
       within(dialog).getByText("A little sunshine, personified."),
     ).toBeTruthy();
-    expect(within(dialog).getByText("2 / 9")).toBeTruthy();
+    expect(within(dialog).getByText(`2 / ${photos.length}`)).toBeTruthy();
     await user.click(
       within(dialog).getByRole("button", { name: "Close photograph" }),
     );
