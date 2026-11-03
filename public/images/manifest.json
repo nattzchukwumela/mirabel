@@ -1,0 +1,65 @@
+[
+  {
+    "src": "/images/hero.jpg",
+    "alt": "Mirabel in a cream top, wearing long braids",
+    "width": 960,
+    "height": 1280,
+    "objectPosition": "50% 42%"
+  },
+  {
+    "src": "/images/mirabel-celebration.jpg",
+    "alt": "Mirabel smiling in a colorful dress",
+    "width": 716,
+    "height": 955,
+    "objectPosition": "50% 48%"
+  },
+  {
+    "src": "/images/mirabel-headphones.jpg",
+    "alt": "Mirabel smiling with headphones on",
+    "width": 720,
+    "height": 1280,
+    "objectPosition": "50% 52%"
+  },
+  {
+    "src": "/images/mirabel-daylight.jpg",
+    "alt": "Mirabel with auburn braids in the daylight",
+    "width": 732,
+    "height": 1080,
+    "objectPosition": "50% 48%"
+  },
+  {
+    "src": "/images/mirabel-braids.jpg",
+    "alt": "Mirabel in a grey top with long braids",
+    "width": 720,
+    "height": 1280,
+    "objectPosition": "50% 60%"
+  },
+  {
+    "src": "/images/mirabel-cap.jpg",
+    "alt": "Mirabel in a navy cap",
+    "width": 576,
+    "height": 1026,
+    "objectPosition": "50% 40%"
+  },
+  {
+    "src": "/images/mirabel-casual.jpg",
+    "alt": "Mirabel standing in a navy T-shirt and cap",
+    "width": 576,
+    "height": 1026,
+    "objectPosition": "50% 48%"
+  },
+  {
+    "src": "/images/mirabel-playful.jpg",
+    "alt": "A playful selfie of Mirabel",
+    "width": 720,
+    "height": 1280,
+    "objectPosition": "50% 55%"
+  },
+  {
+    "src": "/images/mirabel-midnight.jpg",
+    "alt": "Mirabel in soft evening light",
+    "width": 720,
+    "height": 1280,
+    "objectPosition": "50% 50%"
+  }
+]
