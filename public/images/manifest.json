@@ -102,5 +102,13 @@
     "height": 640,
     "objectPosition": "50% 50%",
     "caption": "Caught in a little moment."
+  },
+  {
+    "src": "/images/miri.jpeg",
+    "alt": "Mirabel wearing light-colored headphones in a dimly lit selfie",
+    "width": 576,
+    "height": 1280,
+    "objectPosition": "50% 55%",
+    "caption": "A little music. A lot of personality."
   }
 ]

@@ -29,7 +29,7 @@ The production build is a **static export in `out/`**. Serve that directory with
 - An animated welcome, photo keepsake, handwritten notes, scroll progress, chapter navigation, and smooth transitions.
 - A playful character dossier with animated personality statistics and a hidden note.
 - Four interactive interest chapters: a touch- and keyboard-friendly volleyball keep-up game, a virtual Navessa Allen bookshelf, a compliment terminal, and a warm faith scene.
-- A swipeable 13-photo scrapbook with full-size viewing, arrow-key navigation, and accessible dialog controls.
+- A swipeable 14-photo scrapbook with full-size viewing, arrow-key navigation, and accessible dialog controls.
 - An envelope that opens into the complete appreciation letter. The letter unfolds progressively, with a **Read it all** control to reveal it immediately.
 - A humorous appreciation meter that refuses to go below 100%, celebrates increases, and plays optional sound effects.
 - An animated mystery present, sparkles, and confetti. Its reveal keeps the physical gift secret.
@@ -41,7 +41,7 @@ Music is **off on every initial visit** and starts only after an explicit press 
 
 ## Personalize the photographs
 
-All 13 supplied originals have been moved from the former `her/` folder into **`public/images/originals/`**, preserving their filenames and file contents. The gallery uses smaller, descriptively named JPEGs directly in **`public/images/`**. The deleted photograph has been removed from both the gallery and its optimized assets. Optimized JPEGs have no EXIF metadata; black bars and the screenshot footer are cropped where applicable.
+The previous 13 originals have been moved from the former `her/` folder into **`public/images/originals/`**, preserving their filenames and file contents. The gallery uses smaller, descriptively named JPEGs directly in **`public/images/`**, plus the newest photograph at **`public/images/miri.jpeg`**. The deleted photograph has been removed from both the gallery and its optimized assets. Optimized JPEGs have no EXIF metadata; black bars and the screenshot footer are cropped where applicable.
 
 The gallery reads **`public/images/manifest.json`**. Each entry contains:
 
