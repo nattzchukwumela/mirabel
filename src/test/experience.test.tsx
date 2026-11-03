@@ -1,7 +1,14 @@
-import { describe, expect, it } from "vitest";
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import Experience from "@/components/experience";
+import VideoKeepsake from "@/components/video-keepsake";
 import { letter } from "@/lib/personalization";
 import photos from "../../public/images/manifest.json";
 
@@ -177,7 +184,7 @@ describe("The Mirabel Experience", () => {
     });
     await user.click(trigger);
     const dialog = screen.getByRole("dialog", {
-      name: "Quite simply, Mirabel.",
+      name: photos[0].caption,
     });
     expect((dialog as HTMLDialogElement).open).toBe(true);
     expect(document.body.style.overflow).toBe("hidden");
@@ -197,9 +204,7 @@ describe("The Mirabel Experience", () => {
     await user.click(
       within(dialog).getByRole("button", { name: "Next photograph" }),
     );
-    expect(
-      within(dialog).getByText("A little sunshine, personified."),
-    ).toBeTruthy();
+    expect(within(dialog).getByText(photos[1].caption)).toBeTruthy();
     expect(within(dialog).getByText(`2 / ${photos.length}`)).toBeTruthy();
     await user.click(
       within(dialog).getByRole("button", { name: "Close photograph" }),
@@ -207,6 +212,129 @@ describe("The Mirabel Experience", () => {
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
     expect(document.body.style.overflow).toBe("auto");
     expect(document.activeElement).toBe(trigger);
+  });
+
+  it("puts the newest photo first and loads it immediately in the rail and viewer", async () => {
+    const user = userEvent.setup();
+    render(<Experience />);
+    const rail = screen.getByRole("region", { name: "Photographs of Mirabel" });
+    const firstPhoto = within(rail).getAllByRole("button")[0];
+    const thumbnail = within(firstPhoto).getByRole("img") as HTMLImageElement;
+    expect(thumbnail.getAttribute("src")).toBe("/images/miri-yet.jpeg");
+    expect(thumbnail.getAttribute("loading")).toBe("eager");
+    expect(within(firstPhoto).getByText("Newest photo")).toBeTruthy();
+    await user.click(firstPhoto);
+    const dialog = screen.getByRole("dialog", { name: photos[0].caption });
+    const image = within(dialog).getByRole("img") as HTMLImageElement;
+    expect(image.getAttribute("src")).toBe("/images/miri-yet.jpeg");
+    expect(image.getAttribute("loading")).toBe("eager");
+    expect(within(dialog).getByText(`1 / ${photos.length}`)).toBeTruthy();
+  });
+
+  it("opens every photo through View all and returns focus to that control", async () => {
+    const user = userEvent.setup();
+    render(<Experience />);
+    const trigger = screen.getByRole("button", {
+      name: `View all ${photos.length} photos`,
+    });
+    await user.click(trigger);
+    const dialog = screen.getByRole("dialog", { name: photos[0].caption });
+    expect(within(dialog).getByText(`1 / ${photos.length}`)).toBeTruthy();
+    await user.click(
+      within(dialog).getByRole("button", { name: "Previous photograph" }),
+    );
+    expect(within(dialog).getByText(photos.at(-1)!.caption)).toBeTruthy();
+    expect(
+      within(dialog).getByText(`${photos.length} / ${photos.length}`),
+    ).toBeTruthy();
+    await user.click(
+      within(dialog).getByRole("button", { name: "Close photograph" }),
+    );
+    expect(document.activeElement).toBe(trigger);
+  });
+
+  it("offers a retry and the original file when a gallery image fails to load", async () => {
+    const user = userEvent.setup();
+    render(<Experience />);
+    await user.click(
+      screen.getByRole("button", { name: `View all ${photos.length} photos` }),
+    );
+    const dialog = screen.getByRole("dialog", { name: photos[0].caption });
+    fireEvent.error(within(dialog).getByRole("img"));
+    const alert = within(dialog).getByRole("alert");
+    expect(
+      within(alert)
+        .getByRole("link", { name: /Open photo/ })
+        .getAttribute("href"),
+    ).toContain(photos[0].src);
+    await user.click(within(alert).getByRole("button", { name: /Try again/ }));
+    expect(within(dialog).queryByRole("alert")).toBeNull();
+    const retryImage = within(dialog).getByRole("img");
+    fireEvent.load(retryImage);
+    expect(within(dialog).queryByRole("alert")).toBeNull();
+  });
+
+  it("follows the measured mobile photo spacing and reaches the final image", async () => {
+    const user = userEvent.setup();
+    render(<Experience />);
+    const rail = screen.getByRole("region", { name: "Photographs of Mirabel" });
+    const items = within(rail).getAllByRole("button");
+    // A narrow viewport with 180px photos, the mobile 21px gap, and 26px
+    // side padding. jsdom needs explicit measurements because it has no layout.
+    const photoWidth = 180;
+    const gap = 21;
+    const padding = 26;
+    const viewportWidth = 300;
+    const contentWidth =
+      items.length * photoWidth + (items.length - 1) * gap + padding * 2;
+    const maximumScroll = contentWidth - viewportWidth;
+    rail.style.paddingLeft = `${padding}px`;
+    Object.defineProperties(rail, {
+      clientWidth: { configurable: true, value: viewportWidth },
+      scrollWidth: { configurable: true, value: contentWidth },
+    });
+    items.forEach((item, index) => {
+      Object.defineProperties(item, {
+        offsetLeft: {
+          configurable: true,
+          value: padding + index * (photoWidth + gap),
+        },
+        offsetWidth: { configurable: true, value: photoWidth },
+      });
+    });
+    const scroll = vi.spyOn(rail, "scrollTo");
+    fireEvent.scroll(rail);
+    const next = screen.getByRole("button", {
+      name: "Next photographs",
+    }) as HTMLButtonElement;
+    await user.click(next);
+    expect(scroll).toHaveBeenLastCalledWith({
+      left: photoWidth + gap,
+      behavior: "auto",
+    });
+
+    rail.scrollLeft = (items.length - 2) * (photoWidth + gap);
+    fireEvent.scroll(rail);
+    await user.click(next);
+    expect(scroll).toHaveBeenLastCalledWith({
+      left: maximumScroll,
+      behavior: "auto",
+    });
+    rail.scrollLeft = maximumScroll;
+    fireEvent.scroll(rail);
+    expect(next.disabled).toBe(true);
+    expect(
+      screen.getByText(
+        `Showing ${items.length - 1}–${items.length} of ${items.length} photos`,
+      ),
+    ).toBeTruthy();
+    await user.click(
+      screen.getByRole("button", { name: "Previous photographs" }),
+    );
+    expect(scroll).toHaveBeenLastCalledWith({
+      left: (items.length - 2) * (photoWidth + gap),
+      behavior: "auto",
+    });
   });
 
   it("opens the secret lullaby and closes it without leaving the page scroll-locked", async () => {
@@ -262,5 +390,56 @@ describe("The Mirabel Experience", () => {
     await new Promise((resolve) => window.setTimeout(resolve, 200));
     await user.keyboard(" ");
     expect(screen.getByText("1 bump", { exact: true })).toBeTruthy();
+  });
+});
+
+describe("Mirabel's video keepsake", () => {
+  it("offers native playback controls without autoplay and follows global mute and volume", () => {
+    const onPlay = vi.fn();
+    const { rerender } = render(
+      <VideoKeepsake soundOn volume={0.35} onPlay={onPlay} />,
+    );
+    const video = screen.getByLabelText(
+      "Play a 15-second video montage of Mirabel",
+    ) as HTMLVideoElement;
+    expect(video.controls).toBe(true);
+    expect(video.playsInline).toBe(true);
+    expect(video.preload).toBe("metadata");
+    expect(video.getAttribute("poster")).toBe("/videos/miri-poster.jpg");
+    expect(video.querySelector("source")?.getAttribute("src")).toBe(
+      "/videos/miri.mp4",
+    );
+    expect(video.hasAttribute("autoplay")).toBe(false);
+    expect(video.muted).toBe(false);
+    expect(video.volume).toBe(0.35);
+    fireEvent.play(video);
+    expect(onPlay).toHaveBeenCalledTimes(1);
+    rerender(<VideoKeepsake soundOn={false} volume={0.7} onPlay={onPlay} />);
+    expect(video.muted).toBe(true);
+    expect(video.volume).toBe(0.7);
+  });
+
+  it("provides a direct clip and a working retry control after a media error", async () => {
+    const user = userEvent.setup();
+    render(<VideoKeepsake />);
+    const video = screen.getByLabelText(
+      "Play a 15-second video montage of Mirabel",
+    ) as HTMLVideoElement;
+    fireEvent.error(video);
+    const alert = screen.getByRole("alert");
+    expect(
+      within(alert)
+        .getByRole("link", { name: /Open the clip directly/ })
+        .getAttribute("href"),
+    ).toBe("/videos/miri.mp4");
+    expect(video.controls).toBe(false);
+    await user.click(
+      within(alert).getByRole("button", {
+        name: "Try loading the video again",
+      }),
+    );
+    expect(screen.queryByRole("alert")).toBeNull();
+    expect(video.load).toHaveBeenCalledTimes(1);
+    expect(video.controls).toBe(true);
   });
 });

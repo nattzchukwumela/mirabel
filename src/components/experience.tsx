@@ -1313,7 +1313,13 @@ export default function Experience() {
         </div>
         <PersonalityFiles onFind={findStar} />
         <LittleUniverse />
-        <PhotoGallery />
+        <PhotoGallery
+          soundOn={audio.soundOn}
+          volume={audio.volume}
+          onVideoPlay={() => {
+            if (audio.musicOn) audio.toggleMusic();
+          }}
+        />
         <AppreciationLetter />
         <section
           className="meter-section section-space"

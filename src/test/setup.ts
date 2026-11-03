@@ -130,7 +130,21 @@ Object.defineProperty(HTMLElement.prototype, "scrollBy", {
   configurable: true,
   value: vi.fn(),
 });
+Object.defineProperty(HTMLElement.prototype, "scrollTo", {
+  configurable: true,
+  value: vi.fn(),
+});
 Object.defineProperty(HTMLElement.prototype, "scrollIntoView", {
+  configurable: true,
+  value: vi.fn(),
+});
+// jsdom cannot decode media. These stubs let the UI's mute, retry, and pause
+// behavior run while leaving actual browser playback outside this test suite.
+Object.defineProperty(HTMLMediaElement.prototype, "pause", {
+  configurable: true,
+  value: vi.fn(),
+});
+Object.defineProperty(HTMLMediaElement.prototype, "load", {
   configurable: true,
   value: vi.fn(),
 });

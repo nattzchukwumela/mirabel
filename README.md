@@ -29,7 +29,7 @@ The production build is a **static export in `out/`**. Serve that directory with
 - An animated welcome, photo keepsake, handwritten notes, scroll progress, chapter navigation, and smooth transitions.
 - A playful character dossier with animated personality statistics and a hidden note.
 - Four interactive interest chapters: a touch- and keyboard-friendly volleyball keep-up game, a virtual Navessa Allen bookshelf, a compliment terminal, and a warm faith scene.
-- A swipeable 15-photo scrapbook with full-size viewing, arrow-key navigation, and accessible dialog controls.
+- A swipeable 15-photo scrapbook with the newest photo first, visible position/count, direct full-gallery viewing, arrow-key navigation, and accessible dialog controls. A 15-second portrait video keepsake includes a real cover frame, native playback controls, and global sound/volume support.
 - An envelope that opens into the complete appreciation letter. The letter unfolds progressively, with a **Read it all** control to reveal it immediately.
 - A humorous appreciation meter that refuses to go below 100%, celebrates increases, and plays optional sound effects.
 - An animated mystery present, sparkles, and confetti. Its reveal keeps the physical gift secret.
@@ -43,7 +43,7 @@ Music is **off on every initial visit** and starts only after an explicit press 
 
 The previous 13 originals have been moved from the former `her/` folder into **`public/images/originals/`**, preserving their filenames and file contents. The gallery uses smaller, descriptively named JPEGs directly in **`public/images/`**, plus the latest photographs at **`public/images/miri.jpeg`** and **`public/images/miri-yet.jpeg`**. The deleted photograph has been removed from both the gallery and its optimized assets. Optimized JPEGs have no EXIF metadata; black bars and the screenshot footer are cropped where applicable.
 
-The gallery reads **`public/images/manifest.json`**. Each entry contains:
+The gallery reads **`public/images/manifest.json`** in display order. The most recently added photograph is shown first and loads eagerly. Photo loading errors offer retry and direct-open controls in the full-size viewer. Each entry contains:
 
 ```json
 {
@@ -59,6 +59,12 @@ The gallery reads **`public/images/manifest.json`**. Each entry contains:
 Put display photos in `public/images/`, then add or update their entries in the manifest, including dimensions, alt text, focal position, and `caption`. Keep original files in `public/images/originals/`. The gallery reads captions from the manifest and repeats its decorative rotations automatically, so it supports additional photos without editing component arrays. Remove a photograph's manifest entry and its display file to take it out of the gallery.
 
 The welcome uses `/images/hero.jpg`, and the profile uses `/images/mirabel-headphones.jpg`. Replace those files directly or update the corresponding `Image` references and alt text in **`src/components/experience.tsx`**.
+
+## The video keepsake
+
+The supplied clip is **`public/videos/miri.mp4`** (about 15 seconds, H.264 video with AAC audio). Its real cover frame is **`public/videos/miri-poster.jpg`** because the clip starts black. The player uses native controls, plays inline on mobile, and never autoplays. Starting it pauses the optional ambient music; it follows the global mute/volume controls and pauses when the page is hidden or a photo/lullaby dialog opens.
+
+Replace the MP4 and poster at those paths to change the keepsake. Update its duration, description, and labels in `src/components/video-keepsake.tsx` if the content changes.
 
 ## Link preview image
 
@@ -94,6 +100,6 @@ If you move to another host or domain, set `NEXT_PUBLIC_SITE_URL` to the new pro
 
 ## Verification
 
-Ten automated interaction tests cover the letter, appreciation meter, interest tabs, gift reveal, theme, hidden ability, gallery, lullaby, sound-panel keyboard focus, and volleyball keyboard controls. Run them with `pnpm test`. These use jsdom and do not replace visual device testing. Browser visual QA was unavailable in the build environment.
+Sixteen automated interaction tests cover the letter, appreciation meter, interests, gift reveal, theme, hidden ability, newest-photo access, gallery navigation and image retries, video controls and sound settings, the lullaby, sound-panel keyboard focus, and volleyball keyboard controls. Run them with `pnpm test`. These use jsdom and do not replace visual device testing. Browser visual QA was unavailable in the build environment.
 
 The build uses Next.js’s supported Webpack compiler and in-process TypeScript checking for compatibility with restricted environments.

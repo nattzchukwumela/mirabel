@@ -66,6 +66,7 @@
   color: #b49b70;
 }
 .rail {
+  position: relative;
   display: flex;
   gap: 28px;
   overflow-x: auto;
@@ -140,6 +141,31 @@
   object-fit: cover;
   transition: transform 0.5s;
 }
+.newest {
+  position: absolute;
+  top: 9px;
+  left: 9px;
+  padding: 5px 9px;
+  border-radius: 20px;
+  background: #fffdf8eb;
+  color: #705085;
+  font-size: 9px;
+  font-family: var(--font-sans);
+  box-shadow: 0 2px 8px #32213a0c;
+}
+.thumbnailError {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 20px;
+  color: var(--purple);
+  background: var(--lavender);
+  font-size: 11px;
+}
 .polaroid:hover .photo img {
   transform: scale(1.035);
 }
@@ -202,6 +228,68 @@
   display: block;
   opacity: 0.8;
   font-size: 10px;
+}
+.footer p .position {
+  font-size: 11px;
+  opacity: 1;
+}
+.viewAll {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  border-radius: 25px;
+  background: var(--surface);
+  color: var(--purple);
+  font-size: 11px;
+  margin-left: auto;
+}
+.viewAll:hover {
+  background: var(--lavender);
+}
+.loadingPhoto,
+.imageError {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 14px;
+  padding: 24px;
+  color: var(--purple);
+  font-size: 12px;
+  background: var(--lavender);
+}
+.loadingPhoto {
+  pointer-events: none;
+  background: transparent;
+}
+.loadingPhoto svg {
+  animation: photo-spin 1.2s linear infinite;
+}
+.imageError > div {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+.imageError button,
+.imageError a {
+  min-height: 40px;
+  padding: 9px 13px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--surface);
+  color: var(--purple);
+  font-size: 11px;
+}
+@keyframes photo-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 .arrows {
   display: flex;
@@ -383,8 +471,17 @@
     margin-top: 14px;
   }
   .footer {
+    flex-wrap: wrap;
     padding: 15px 0 0;
     gap: 12px;
+  }
+  .footer p {
+    flex: 1 1 100%;
+    max-width: none;
+  }
+  .footer .viewAll {
+    margin-left: 0;
+    margin-right: auto;
   }
   .footer p {
     font-size: 10px;
@@ -431,6 +528,9 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
+  .loadingPhoto svg {
+    animation: none;
+  }
   .polaroid,
   .photo img,
   .expand,

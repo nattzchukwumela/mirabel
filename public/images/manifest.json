@@ -1,5 +1,13 @@
 [
   {
+    "src": "/images/miri-yet.jpeg",
+    "alt": "A close-up selfie of Mirabel wearing a dark high-neck top",
+    "width": 576,
+    "height": 1280,
+    "objectPosition": "60% 48%",
+    "caption": "Another frame. Still one of a kind."
+  },
+  {
     "src": "/images/hero.jpg",
     "alt": "Mirabel in a cream top, wearing long braids",
     "width": 960,
@@ -110,13 +118,5 @@
     "height": 1280,
     "objectPosition": "50% 55%",
     "caption": "A little music. A lot of personality."
-  },
-  {
-    "src": "/images/miri-yet.jpeg",
-    "alt": "A close-up selfie of Mirabel wearing a dark high-neck top",
-    "width": 576,
-    "height": 1280,
-    "objectPosition": "60% 48%",
-    "caption": "Another frame. Still one of a kind."
   }
 ]
