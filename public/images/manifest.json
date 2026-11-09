@@ -1,5 +1,77 @@
 [
   {
+    "src": "/images/mirabel-pink-top-indoor-smile.jpeg",
+    "alt": "Mirabel smiling in an indoor selfie, wearing a light top and white headband",
+    "width": 720,
+    "height": 1280,
+    "objectPosition": "50% 48%",
+    "caption": "A smile worth keeping."
+  },
+  {
+    "src": "/images/mirabel-pink-top-indoor-selfie.jpeg",
+    "alt": "Mirabel in an indoor selfie, wearing a light top and white headband",
+    "width": 720,
+    "height": 1280,
+    "objectPosition": "50% 48%",
+    "caption": "A little moment, just hers."
+  },
+  {
+    "src": "/images/mirabel-pink-top-outdoor-standing.jpeg",
+    "alt": "Mirabel standing outdoors in a pink top and colorful patterned trousers",
+    "width": 720,
+    "height": 1280,
+    "objectPosition": "50% 52%",
+    "caption": "A little color in every step."
+  },
+  {
+    "src": "/images/mirabel-pink-top-outdoor-pose.jpeg",
+    "alt": "Mirabel posing outdoors in a pink top and colorful patterned trousers",
+    "width": 720,
+    "height": 1280,
+    "objectPosition": "50% 52%",
+    "caption": "Making her own kind of sunshine."
+  },
+  {
+    "src": "/images/mirabel-pink-top-outdoor-full-length.jpeg",
+    "alt": "Mirabel posing against a wall outdoors in a pink top and patterned trousers",
+    "width": 720,
+    "height": 1280,
+    "objectPosition": "50% 52%",
+    "caption": "A pose that feels like her."
+  },
+  {
+    "src": "/images/mirabel-pink-top-outdoor-portrait.jpeg",
+    "alt": "A closer portrait of Mirabel outdoors in a pink top and colorful trousers",
+    "width": 720,
+    "height": 1280,
+    "objectPosition": "50% 48%",
+    "caption": "The details make the moment."
+  },
+  {
+    "src": "/images/mirabel-pink-top-outdoor-playful.jpeg",
+    "alt": "Mirabel playfully posing outdoors in a pink top and patterned trousers",
+    "width": 720,
+    "height": 1280,
+    "objectPosition": "50% 52%",
+    "caption": "A little playful, always herself."
+  },
+  {
+    "src": "/images/mirabel-pink-top-outdoor-sky.jpeg",
+    "alt": "Mirabel standing beneath a blue sky in a pink top and colorful patterned trousers",
+    "width": 720,
+    "height": 1280,
+    "objectPosition": "50% 52%",
+    "caption": "A frame with room to breathe."
+  },
+  {
+    "src": "/images/mirabel-pink-top-outdoor-smile.jpeg",
+    "alt": "Mirabel smiling outdoors in a pink top and colorful patterned trousers",
+    "width": 720,
+    "height": 1280,
+    "objectPosition": "50% 50%",
+    "caption": "One more reason to smile."
+  },
+  {
     "src": "/images/miri-yet.jpeg",
     "alt": "A close-up selfie of Mirabel wearing a dark high-neck top",
     "width": 576,
