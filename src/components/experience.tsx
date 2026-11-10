@@ -52,6 +52,7 @@ import {
 import PhotoGallery from "./photo-gallery";
 import SecretDialogue from "./secret-dialogue";
 import MusicPromptDialog from "./music-prompt-dialog";
+import MobileGate from "./mobile-gate";
 import { useExperienceAudio, type SoundKind } from "@/lib/use-experience-audio";
 import { letter, lullaby } from "@/lib/personalization";
 
@@ -1764,6 +1765,7 @@ export default function Experience({
           <span>From Nattz ✉</span>
         </button>
       )}
+      <MobileGate onSound={audio.playEffect} />
     </MotionConfig>
   );
 }

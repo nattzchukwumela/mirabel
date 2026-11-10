@@ -3,6 +3,7 @@ import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import SecretDialogue from "@/components/secret-dialogue";
 import MusicPromptDialog from "@/components/music-prompt-dialog";
+import MobileGate, { detectMobileFromUA } from "@/components/mobile-gate";
 import { VolleyballGame, ComplimentTerminal } from "@/components/playground";
 import Experience from "@/components/experience";
 
@@ -251,6 +252,94 @@ describe("Ball & Action Sound Effects", () => {
       .getAttribute("aria-label");
     expect(firstAfter).not.toBe(firstBefore);
     expect(screen.getByText("Featured pick")).toBeTruthy();
+  });
+});
+
+describe("Mobile Blocker Gate (Infinix Hot 60i & Phone Detection)", () => {
+  it("detects Infinix Hot 60i, other phones, and desktop user agents accurately", () => {
+    expect(
+      detectMobileFromUA(
+        "Mozilla/5.0 (Linux; Android 14; Infinix X6728) AppleWebKit/537.36 Chrome/131.0.0.0 Mobile Safari/537.36",
+      ),
+    ).toEqual({
+      isPhone: true,
+      isInfinixHot60i: true,
+    });
+
+    expect(
+      detectMobileFromUA(
+        "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 Chrome/131.0.0.0 Mobile Safari/537.36",
+        "Infinix HOT 60i",
+        true,
+      ),
+    ).toEqual({
+      isPhone: true,
+      isInfinixHot60i: true,
+    });
+
+    expect(
+      detectMobileFromUA(
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148",
+      ),
+    ).toEqual({
+      isPhone: true,
+      isInfinixHot60i: false,
+    });
+
+    expect(
+      detectMobileFromUA(
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/131.0.0.0 Safari/537.36",
+      ),
+    ).toEqual({
+      isPhone: false,
+      isInfinixHot60i: false,
+    });
+  });
+
+  it("tells Mirabel 'No tricks' and to use her PC when on an Infinix Hot 60i", () => {
+    render(
+      <MobileGate
+        forceDevice={{ isPhone: true, isInfinixHot60i: true }}
+      />,
+    );
+
+    expect(screen.getByText(/INFINIX HOT 60i DETECTED/i)).toBeTruthy();
+    expect(screen.getByText(/No tricks, Mirabel!/i)).toBeTruthy();
+    expect(screen.getByText(/Go use your PC\./i)).toBeTruthy();
+    expect(
+      screen.queryByLabelText(/Mobile Access Password/i),
+    ).toBeNull();
+  });
+
+  it("blocks other phones and unlocks mobile view with password 'redmi 12c'", async () => {
+    const user = userEvent.setup();
+    const onSound = vi.fn();
+    sessionStorage.removeItem("mirabel-mobile-unlocked");
+
+    render(
+      <MobileGate
+        onSound={onSound}
+        forceDevice={{ isPhone: true, isInfinixHot60i: false }}
+      />,
+    );
+
+    expect(screen.getByText(/Please use a PC/i)).toBeTruthy();
+    const input = screen.getByLabelText(/Mobile Access Password/i);
+    const unlockBtn = screen.getByRole("button", { name: /Unlock/i });
+
+    // Try wrong password
+    await user.type(input, "wrongpass");
+    await user.click(unlockBtn);
+    expect(onSound).toHaveBeenCalledWith("error");
+    expect(
+      screen.getByText(/Wrong password! Please use a PC to view this site/i),
+    ).toBeTruthy();
+
+    // Enter 'redmi 12c'
+    await user.type(input, "Redmi 12C");
+    await user.click(unlockBtn);
+    expect(onSound).toHaveBeenCalledWith("success");
+    expect(screen.queryByText(/Please use a PC/i)).toBeNull();
   });
 });
 
