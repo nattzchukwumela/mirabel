@@ -3,7 +3,7 @@ import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import SecretDialogue from "@/components/secret-dialogue";
 import MusicPromptDialog from "@/components/music-prompt-dialog";
-import MobileGate, { detectMobileFromUA } from "@/components/mobile-gate";
+import MobileGate, { detectDevice, detectMobileFromUA } from "@/components/mobile-gate";
 import { VolleyballGame, ComplimentTerminal } from "@/components/playground";
 import Experience from "@/components/experience";
 
@@ -264,59 +264,108 @@ describe("Ball & Action Sound Effects", () => {
 });
 
 describe("Mobile Blocker Gate (Infinix Hot 60i & Phone Detection)", () => {
-  it("detects Infinix Hot 60i, other phones, and desktop user agents accurately", () => {
+  it("detects Infinix Hot 60i, other phones, tablets, PC mode on phone, and desktop computers accurately", () => {
+    // 1. Infinix
     expect(
-      detectMobileFromUA(
+      detectDevice(
         "Mozilla/5.0 (Linux; Android 14; Infinix X6728) AppleWebKit/537.36 Chrome/131.0.0.0 Mobile Safari/537.36",
-      ),
-    ).toEqual({
-      isPhone: true,
-      isInfinixHot60i: true,
-    });
+      ).kind,
+    ).toBe("infinix");
 
+    // 2. Normal mobile phone
     expect(
-      detectMobileFromUA(
-        "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 Chrome/131.0.0.0 Mobile Safari/537.36",
-        "Infinix HOT 60i",
-        true,
-      ),
-    ).toEqual({
-      isPhone: true,
-      isInfinixHot60i: true,
-    });
-
-    expect(
-      detectMobileFromUA(
+      detectDevice(
         "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148",
-      ),
-    ).toEqual({
-      isPhone: true,
-      isInfinixHot60i: false,
-    });
+      ).kind,
+    ).toBe("phone");
+
+    // 3. Phone in PC mode / Desktop site (touchpoints + coarse pointer or mobile width with desktop UA)
+    expect(
+      detectDevice(
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15",
+        "",
+        false,
+        5,
+        393,
+        true,
+      ).kind,
+    ).toBe("phone_pc_mode");
 
     expect(
-      detectMobileFromUA(
+      detectDevice(
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/131.0.0.0 Safari/537.36",
+        "",
+        false,
+        5,
+        412,
+        true,
+      ).kind,
+    ).toBe("phone_pc_mode");
+
+    // 4. Tablet
+    expect(
+      detectDevice(
+        "Mozilla/5.0 (iPad; CPU OS 17_5 like Mac OS X) AppleWebKit/605.1.15",
+      ).kind,
+    ).toBe("tablet");
+
+    // 5. Real desktop / computer
+    expect(
+      detectDevice(
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/131.0.0.0 Safari/537.36",
-      ),
-    ).toEqual({
-      isPhone: false,
-      isInfinixHot60i: false,
-    });
+        "",
+        false,
+        0,
+        1920,
+        false,
+      ).kind,
+    ).toBe("desktop");
   });
 
-  it("tells Mirabel 'No tricks' and to use her PC when on an Infinix Hot 60i", () => {
+  it("catches phone in PC mode and requires the 3-step stress quiz", () => {
     render(
       <MobileGate
-        forceDevice={{ isPhone: true, isInfinixHot60i: true }}
+        forceDevice={{ kind: "phone_pc_mode", label: "Phone in PC Mode" }}
+        defaultOpen={true}
+      />,
+    );
+
+    expect(screen.getByText(/PC MODE ON PHONE DETECTED/i)).toBeTruthy();
+    expect(screen.getByText(/Nice try using PC mode! 😂/i)).toBeTruthy();
+    expect(
+      screen.getByText(/Did you really think turning on/i),
+    ).toBeTruthy();
+    expect(screen.getByPlaceholderText(/Enter phone model in lowercase/i)).toBeTruthy();
+  });
+
+  it("enables the gate and stress quiz on computer / desktop as well", () => {
+    render(
+      <MobileGate
+        forceDevice={{ kind: "desktop", label: "Computer / PC" }}
+        defaultOpen={true}
+      />,
+    );
+
+    expect(screen.getByText(/COMPUTER DETECTED · VERIFICATION REQUIRED/i)).toBeTruthy();
+    expect(screen.getByText(/Computer detected! 😂/i)).toBeTruthy();
+    expect(
+      screen.getByText(/You didn't think being on a computer meant you get a free pass, did you\?! 😂/i),
+    ).toBeTruthy();
+    expect(screen.getByPlaceholderText(/Enter phone model in lowercase/i)).toBeTruthy();
+  });
+
+  it("tells Mirabel 'No tricks' and still enforces the gate when on an Infinix Hot 60i", () => {
+    render(
+      <MobileGate
+        forceDevice={{ kind: "infinix", label: "Infinix Hot 60i" }}
+        defaultOpen={true}
       />,
     );
 
     expect(screen.getByText(/INFINIX HOT 60i DETECTED/i)).toBeTruthy();
     expect(screen.getByText(/No tricks, Mirabel!/i)).toBeTruthy();
     expect(screen.getByText(/Go use your PC\./i)).toBeTruthy();
-    expect(
-      screen.queryByLabelText(/Mobile Access Password/i),
-    ).toBeNull();
+    expect(screen.getByPlaceholderText(/Enter phone model in lowercase/i)).toBeTruthy();
   });
 
   it("blocks other phones, displays the hilarious message, enforces lowercase, and requires passing the 3-step stress quiz (model, RAM/ROM, CPU)", async () => {
@@ -327,7 +376,8 @@ describe("Mobile Blocker Gate (Infinix Hot 60i & Phone Detection)", () => {
     render(
       <MobileGate
         onSound={onSound}
-        forceDevice={{ isPhone: true, isInfinixHot60i: false }}
+        forceDevice={{ kind: "phone", label: "Mobile Phone" }}
+        defaultOpen={true}
       />,
     );
 

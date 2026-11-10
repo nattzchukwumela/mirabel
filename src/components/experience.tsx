@@ -887,8 +887,10 @@ function Surprise({
 
 export default function Experience({
   defaultSecretOpen,
+  defaultGateOpen,
 }: {
   defaultSecretOpen?: boolean;
+  defaultGateOpen?: boolean;
 } = {}) {
   const [theme, setTheme] = useState("day");
   const [menuOpen, setMenuOpen] = useState(false);
@@ -1765,7 +1767,10 @@ export default function Experience({
           <span>From Nattz ✉</span>
         </button>
       )}
-      <MobileGate onSound={audio.playEffect} />
+      <MobileGate
+        onSound={audio.playEffect}
+        defaultOpen={defaultGateOpen}
+      />
     </MotionConfig>
   );
 }
