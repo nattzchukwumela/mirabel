@@ -1647,7 +1647,6 @@ export default function Experience({
         }}
         onAccept={() => {
           if (!audio.musicOn) audio.toggleMusic();
-          window.dispatchEvent(new Event("mirabel:play-piano"));
           audio.playEffect("sparkle");
           setMusicPromptOpen(false);
         }}
