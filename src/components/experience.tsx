@@ -752,11 +752,11 @@ function Surprise({
               animate={
                 opened
                   ? {
-                    y: reduced ? -30 : -115,
-                    rotate: reduced ? 0 : -22,
-                    x: reduced ? 0 : -35,
-                    opacity: 0,
-                  }
+                      y: reduced ? -30 : -115,
+                      rotate: reduced ? 0 : -22,
+                      x: reduced ? 0 : -35,
+                      opacity: 0,
+                    }
                   : { y: 0, rotate: 0, x: 0, opacity: 1 }
               }
               transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}

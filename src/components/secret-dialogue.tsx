@@ -173,8 +173,9 @@ export default function SecretDialogue({
             <div className="secret-card-header">
               <div className="secret-header-left">
                 <div
-                  className={`secret-avatar ${isUnlocked ? "secret-avatar-unlocked" : "secret-avatar-locked"
-                    }`}
+                  className={`secret-avatar ${
+                    isUnlocked ? "secret-avatar-unlocked" : "secret-avatar-locked"
+                  }`}
                 >
                   {isUnlocked ? (
                     <Heart size={20} className="heart-pulse text-[var(--gold)]" />
@@ -196,8 +197,9 @@ export default function SecretDialogue({
 
               <div className="secret-header-right">
                 <span
-                  className={`secret-status-tag ${isUnlocked ? "status-unlocked" : "status-locked"
-                    }`}
+                  className={`secret-status-tag ${
+                    isUnlocked ? "status-unlocked" : "status-locked"
+                  }`}
                 >
                   {isUnlocked ? (
                     <>
@@ -300,8 +302,9 @@ export default function SecretDialogue({
                       onKeyDown={(e) => {
                         if (e.key === "Enter") handleUnlockAttempt();
                       }}
-                      className={`secret-text-input ${errorMsg ? "input-has-error" : ""
-                        }`}
+                      className={`secret-text-input ${
+                        errorMsg ? "input-has-error" : ""
+                      }`}
                       aria-label="Secret password"
                     />
                     <button
