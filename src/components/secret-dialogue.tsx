@@ -10,7 +10,7 @@ import {
   Sparkles,
   Lightbulb,
   Check,
-  Copy,
+  Download,
   X,
   Music2,
   Volume2,
@@ -43,19 +43,6 @@ const FUNNY_ERRORS = [
   "Nope! That's not the password, detective.",
   "Incorrect. Call the other guy for help maybe?",
 ];
-
-const LETTER_TEXT = `Hey Mirabel,
-
-I know I can be a handful and I know I don't always say much—half the time that’s why I cut conversations short—but I need you to know something: I genuinely care about you. Honestly, I love you.
-
-I see the way you treat me, the subtle ways you look out for me, and how much you care. None of it goes unnoticed, and I truly appreciate having you in my corner.
-
-From your end, expect to see even more moving forward. Because even when words fail me, showing up and showing love is what I actually know how to do best.
-
-Hope you enjoy this little surprise.
-
-Always yours,
-Nattz`;
 
 export default function SecretDialogue({
   isOpen,
@@ -123,19 +110,251 @@ export default function SecretDialogue({
 
   const handleCopy = async () => {
     try {
-      if (navigator?.clipboard?.writeText) {
-        await navigator.clipboard.writeText(LETTER_TEXT);
-      } else {
-        const dummy = document.createElement("textarea");
-        document.body.appendChild(dummy);
-        dummy.value = LETTER_TEXT;
-        dummy.select();
-        document.execCommand("copy");
-        document.body.removeChild(dummy);
+      const isNight =
+        typeof document !== "undefined" &&
+        document.documentElement.dataset.theme === "night";
+
+      const scale = 2;
+      const width = 640;
+      const height = 820;
+      const canvas = document.createElement("canvas");
+      canvas.width = width * scale;
+      canvas.height = height * scale;
+      const ctx = canvas.getContext("2d");
+
+      if (ctx) {
+        ctx.scale(scale, scale);
+
+        const bg = isNight ? "#211d29" : "#faf7f2";
+        const surface = isNight ? "#2d2735" : "#fffdf8";
+        const cream = isNight ? "#25202d" : "#faf7f2";
+        const ink = isNight ? "#f0e8ef" : "#37313e";
+        const muted = isNight ? "#b2a6bc" : "#756b7d";
+        const purple = isNight ? "#c2a4db" : "#85629d";
+        const gold = isNight ? "#d6b879" : "#b99a62";
+        const line = isNight ? "#483c52" : "#e3dce6";
+        const blush = isNight ? "#3d2b37" : "#f4e5e9";
+
+        const drawRoundRect = (
+          x: number,
+          y: number,
+          w: number,
+          h: number,
+          r: number,
+          fill: string,
+          stroke?: string,
+        ) => {
+          ctx.beginPath();
+          ctx.moveTo(x + r, y);
+          ctx.arcTo(x + w, y, x + w, y + h, r);
+          ctx.arcTo(x + w, y + h, x, y + h, r);
+          ctx.arcTo(x, y + h, x, y, r);
+          ctx.arcTo(x, y, x + w, y, r);
+          ctx.closePath();
+          ctx.fillStyle = fill;
+          ctx.fill();
+          if (stroke) {
+            ctx.strokeStyle = stroke;
+            ctx.lineWidth = 1;
+            ctx.stroke();
+          }
+        };
+
+        // Outer backdrop
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, width, height);
+
+        // Card container
+        const cardX = 32;
+        const cardY = 28;
+        const cardW = width - 64;
+        const cardH = height - 56;
+        drawRoundRect(cardX, cardY, cardW, cardH, 24, surface, line);
+
+        // Header
+        drawRoundRect(cardX + 28, cardY + 24, 42, 42, 12, blush, purple);
+        ctx.fillStyle = gold;
+        ctx.font = "20px MirabelSerif, Georgia, serif";
+        ctx.textAlign = "center";
+        ctx.fillText("♥", cardX + 49, cardY + 52);
+
+        ctx.textAlign = "left";
+        ctx.fillStyle = ink;
+        ctx.font = "600 15px MirabelSans, Arial, sans-serif";
+        ctx.fillText("From: Nattz", cardX + 82, cardY + 42);
+
+        ctx.fillStyle = muted;
+        ctx.font = "12px MirabelSans, Arial, sans-serif";
+        ctx.fillText(
+          "To: Mirabel • Personal Access Only",
+          cardX + 82,
+          cardY + 60,
+        );
+
+        // Decrypted status pill
+        drawRoundRect(
+          cardX + cardW - 118,
+          cardY + 30,
+          90,
+          26,
+          13,
+          "rgba(16, 185, 129, 0.14)",
+          "rgba(16, 185, 129, 0.35)",
+        );
+        ctx.fillStyle = "#10b981";
+        ctx.font = "600 11px MirabelSans, Arial, sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("✓ Decrypted", cardX + cardW - 73, cardY + 47);
+
+        // Header divider
+        ctx.strokeStyle = line;
+        ctx.beginPath();
+        ctx.moveTo(cardX + 28, cardY + 82);
+        ctx.lineTo(cardX + cardW - 28, cardY + 82);
+        ctx.stroke();
+
+        // Center Heart & Title Banner
+        drawRoundRect(width / 2 - 24, cardY + 98, 48, 48, 24, blush, line);
+        ctx.fillStyle = gold;
+        ctx.font = "22px MirabelSerif, Georgia, serif";
+        ctx.textAlign = "center";
+        ctx.fillText("♥", width / 2, cardY + 129);
+
+        ctx.fillStyle = gold;
+        ctx.font = "700 10px MirabelSans, Arial, sans-serif";
+        ctx.fillText("✧ DECRYPTED NOTE ✧", width / 2, cardY + 166);
+
+        ctx.fillStyle = ink;
+        ctx.font = "34px MirabelSerif, Georgia, serif";
+        ctx.fillText("Straight From The Heart", width / 2, cardY + 202);
+
+        // Letter Paper Box
+        const boxX = cardX + 28;
+        const boxY = cardY + 224;
+        const boxW = cardW - 56;
+        const boxH = 465;
+        drawRoundRect(boxX, boxY, boxW, boxH, 18, cream, line);
+
+        ctx.textAlign = "left";
+        let cursorY = boxY + 36;
+        const textX = boxX + 26;
+        const maxTextW = boxW - 52;
+
+        ctx.fillStyle = purple;
+        ctx.font = "600 16px MirabelSans, Arial, sans-serif";
+        ctx.fillText("Hey Mirabel,", textX, cursorY);
+        cursorY += 32;
+
+        const drawParagraph = (
+          text: string,
+          color: string,
+          font: string,
+          lineHeight: number,
+        ) => {
+          ctx.fillStyle = color;
+          ctx.font = font;
+          const words = text.split(" ");
+          let currentLine = "";
+          for (const word of words) {
+            const testLine = currentLine ? `${currentLine} ${word}` : word;
+            if (ctx.measureText(testLine).width > maxTextW && currentLine) {
+              ctx.fillText(currentLine, textX, cursorY);
+              currentLine = word;
+              cursorY += lineHeight;
+            } else {
+              currentLine = testLine;
+            }
+          }
+          if (currentLine) {
+            ctx.fillText(currentLine, textX, cursorY);
+            cursorY += lineHeight;
+          }
+        };
+
+        drawParagraph(
+          "I know I can be a handful and I know I don't always say much—half the time that’s why I cut conversations short—but I need you to know something:",
+          ink,
+          "14.5px MirabelSans, Arial, sans-serif",
+          24,
+        );
+        cursorY += 2;
+        drawParagraph(
+          "I genuinely care about you. Honestly, I love you.",
+          purple,
+          "600 15px MirabelSans, Arial, sans-serif",
+          24,
+        );
+        cursorY += 12;
+        drawParagraph(
+          "I see the way you treat me, the subtle ways you look out for me, and how much you care. None of it goes unnoticed, and I truly appreciate having you in my corner.",
+          ink,
+          "14.5px MirabelSans, Arial, sans-serif",
+          24,
+        );
+        cursorY += 12;
+        drawParagraph(
+          "From your end, expect to see even more moving forward. Because even when words fail me, showing up and showing love is what I actually know how to do best.",
+          ink,
+          "14.5px MirabelSans, Arial, sans-serif",
+          24,
+        );
+        cursorY += 14;
+        drawParagraph(
+          "Hope you enjoy this little surprise.",
+          purple,
+          "italic 15px MirabelSerif, Georgia, serif",
+          24,
+        );
+
+        // Signature Divider
+        const sigLineY = boxY + boxH - 86;
+        ctx.strokeStyle = line;
+        ctx.beginPath();
+        ctx.moveTo(textX, sigLineY);
+        ctx.lineTo(boxX + boxW - 26, sigLineY);
+        ctx.stroke();
+
+        ctx.fillStyle = muted;
+        ctx.font = "12px MirabelSans, Arial, sans-serif";
+        ctx.fillText("Always yours,", textX, sigLineY + 24);
+
+        ctx.fillStyle = purple;
+        ctx.font = "36px MirabelHand, cursive";
+        ctx.fillText("Nattz", textX, sigLineY + 60);
+
+        ctx.fillStyle = gold;
+        ctx.font = "28px MirabelSerif, Georgia, serif";
+        ctx.textAlign = "right";
+        ctx.fillText("❦", boxX + boxW - 26, sigLineY + 56);
+
+        // Footer
+        ctx.textAlign = "left";
+        ctx.fillStyle = muted;
+        ctx.font = "11.5px MirabelSans, Arial, sans-serif";
+        ctx.fillText(
+          "P.S. Yes, I still want my sweatshirts back.",
+          cardX + 28,
+          cardY + cardH - 24,
+        );
+        ctx.textAlign = "right";
+        ctx.fillText(
+          "✨ The Mirabel Experience",
+          cardX + cardW - 28,
+          cardY + cardH - 24,
+        );
+
+        const dataUrl = canvas.toDataURL("image/png");
+        const link = document.createElement("a");
+        link.download = "letter-from-nattz-to-mirabel.png";
+        link.href = dataUrl;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
       }
+
       setCopied(true);
       audio.playEffect("sparkle");
-      setTimeout(() => setCopied(false), 2400);
+      setTimeout(() => setCopied(false), 2600);
     } catch {
       // Fallback
     }
@@ -449,12 +668,12 @@ export default function SecretDialogue({
                     {copied ? (
                       <>
                         <Check size={14} className="text-emerald-500" />
-                        <span>Copied to Clipboard! ✨</span>
+                        <span>Screenshot Saved! ✨</span>
                       </>
                     ) : (
                       <>
-                        <Copy size={14} />
-                        <span>Copy Letter</span>
+                        <Download size={14} />
+                        <span>Save Letter Screenshot</span>
                       </>
                     )}
                   </button>

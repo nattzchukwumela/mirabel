@@ -114,6 +114,14 @@ describe("Secret Dialogue for Mirabel", () => {
     expect(
       screen.getByText(/P\.S\. Yes, I still want my sweatshirts back\./i),
     ).toBeTruthy();
+
+    // Test saving the letter as a screenshot
+    const screenshotBtn = screen.getByRole("button", {
+      name: /Save Letter Screenshot/i,
+    });
+    await user.click(screenshotBtn);
+    expect(screen.getByText(/Screenshot Saved!/i)).toBeTruthy();
+    expect(playEffect).toHaveBeenCalledWith("sparkle");
   });
 
   it("allows locking back up after unlocking", async () => {
