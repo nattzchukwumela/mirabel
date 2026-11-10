@@ -5,6 +5,7 @@ import {
   useEffect,
   useRef,
   useState,
+  type CSSProperties,
   type ReactNode,
 } from "react";
 import Image from "next/image";
@@ -33,6 +34,7 @@ import {
   Music2,
   Pause,
   Play,
+  RefreshCw,
   Share2,
   Sparkles,
   Star,
@@ -58,6 +60,39 @@ const chapters = [
   { id: "universe", label: "Her little universe", short: "Her universe" },
   { id: "letter", label: "A little note", short: "A little note" },
   { id: "surprise", label: "The surprise", short: "The surprise" },
+];
+
+const HERO_FRAMES = [
+  {
+    src: "/images/hero.jpg",
+    alt: "The one and only Mirabel, wearing a cream top and long braids",
+    caption: "the one & only, Mirabel.",
+    objectPosition: "50% 42%",
+  },
+  {
+    src: "/images/mirabel-pink-top-outdoor-smile.jpeg",
+    alt: "Mirabel smiling outdoors in a pink top and colorful patterned trousers",
+    caption: "sunshine in every single frame.",
+    objectPosition: "50% 50%",
+  },
+  {
+    src: "/images/mirabel-celebration.jpg",
+    alt: "Mirabel smiling in a colorful dress",
+    caption: "joy looks effortless on you.",
+    objectPosition: "50% 48%",
+  },
+  {
+    src: "/images/mirabel-daylight.jpg",
+    alt: "Mirabel with auburn braids in the daylight",
+    caption: "her own kind of golden hour.",
+    objectPosition: "50% 48%",
+  },
+  {
+    src: "/images/miri-yet.jpeg",
+    alt: "A close-up selfie of Mirabel wearing a dark high-neck top",
+    caption: "still one of a kind.",
+    objectPosition: "60% 48%",
+  },
 ];
 
 function Asterisk({ className = "", ...props }: { className?: string }) {
@@ -867,6 +902,11 @@ export default function Experience({
     defaultSecretOpen ?? (process.env.NODE_ENV !== "test"),
   );
   const [musicPromptOpen, setMusicPromptOpen] = useState(false);
+  const [heroFrameIndex, setHeroFrameIndex] = useState(0);
+  const [loveCount, setLoveCount] = useState(0);
+  const [floatingHearts, setFloatingHearts] = useState<
+    { id: number; x: number }[]
+  >([]);
   const [shareFallback, setShareFallback] = useState("");
   const secretDialog = useRef<HTMLDialogElement>(null);
   const soundTrigger = useRef<HTMLButtonElement | null>(null);
@@ -975,6 +1015,25 @@ export default function Experience({
         : notes[id - 1],
     );
   };
+
+  const cycleHeroFrame = () => {
+    audio.playEffect("paper");
+    setHeroFrameIndex((current) => (current + 1) % HERO_FRAMES.length);
+  };
+
+  const sendLittleLove = () => {
+    const next = loveCount + 1;
+    setLoveCount(next);
+    audio.playEffect(next % 5 === 0 ? "sparkle" : "click");
+    const id = Date.now() + Math.random();
+    const x = Math.round((Math.random() - 0.5) * 44);
+    setFloatingHearts((current) => [...current.slice(-6), { id, x }]);
+    window.setTimeout(() => {
+      setFloatingHearts((current) => current.filter((item) => item.id !== id));
+    }, 1100);
+  };
+
+  const heroFrame = HERO_FRAMES[heroFrameIndex];
 
   const toggleTheme = () => {
     audio.playEffect("toggle");
@@ -1278,17 +1337,56 @@ export default function Experience({
                 <span className="photo-tape" />
                 <div className="hero-photo-wrap">
                   <Image
-                    src="/images/hero.jpg"
-                    alt="The one and only Mirabel, wearing a cream top and long braids"
+                    key={heroFrame.src}
+                    src={heroFrame.src}
+                    alt={heroFrame.alt}
                     fill
                     priority
                     sizes="(max-width: 600px) 78vw, (max-width: 1000px) 40vw, 360px"
-                    style={{ objectFit: "cover", objectPosition: "50% 42%" }}
+                    style={{
+                      objectFit: "cover",
+                      objectPosition: heroFrame.objectPosition,
+                    }}
                   />
+                  <button
+                    type="button"
+                    className="hero-frame-swap"
+                    onClick={cycleHeroFrame}
+                    aria-label="Swap polaroid photograph"
+                    title="Tap to swap polaroid photo"
+                  >
+                    <RefreshCw size={12} />
+                    <span>Swap frame</span>
+                  </button>
                 </div>
                 <div className="polaroid-caption">
-                  <span className="handwritten">the one & only, Mirabel.</span>
-                  <Heart size={20} strokeWidth={1} />
+                  <span className="handwritten">{heroFrame.caption}</span>
+                  <button
+                    type="button"
+                    className={`polaroid-heart-btn ${loveCount > 0 ? "is-loved" : ""}`}
+                    onClick={sendLittleLove}
+                    aria-label="Send a little love to Mirabel"
+                    title="Tap to send a little love"
+                  >
+                    <Heart
+                      size={20}
+                      strokeWidth={1.3}
+                      fill={loveCount > 0 ? "currentColor" : "none"}
+                    />
+                    {loveCount > 0 && (
+                      <span className="polaroid-heart-count">{loveCount}</span>
+                    )}
+                    <span className="floating-hearts-wrap" aria-hidden="true">
+                      {floatingHearts.map((heart) => (
+                        <i
+                          key={heart.id}
+                          style={{ "--heart-x": `${heart.x}px` } as CSSProperties}
+                        >
+                          ♥
+                        </i>
+                      ))}
+                    </span>
+                  </button>
                 </div>
               </div>
               <div className="sunshine-badge">
@@ -1308,7 +1406,8 @@ export default function Experience({
                 energy, always.
               </span>
               <div className="photo-count">
-                <span>01</span> / A ONE-OF-A-KIND HUMAN
+                <span>{String(heroFrameIndex + 1).padStart(2, "0")}</span> / A
+                ONE-OF-A-KIND HUMAN
               </div>
             </motion.div>
           </div>

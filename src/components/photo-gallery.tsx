@@ -7,6 +7,7 @@ import {
   Expand,
   ImageOff,
   LoaderCircle,
+  Shuffle,
   Sparkles,
   X,
 } from "lucide-react";
@@ -40,6 +41,8 @@ export default function PhotoGallery({
   const railRef = useRef<HTMLDivElement>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const [galleryPhotos, setGalleryPhotos] = useState(photos);
+  const [shuffleCount, setShuffleCount] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [canPrevious, setCanPrevious] = useState(false);
   const [canNext, setCanNext] = useState(true);
@@ -145,15 +148,40 @@ export default function PhotoGallery({
     setSelected((current) =>
       current === null
         ? 0
-        : (current + direction + photos.length) % photos.length,
+        : (current + direction + galleryPhotos.length) % galleryPhotos.length,
     );
+  };
+
+  const shufflePhotos = () => {
+    onSound?.("paper");
+    setGalleryPhotos((current) => {
+      const next = [...current];
+      for (let i = next.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [next[i], next[j]] = [next[j], next[i]];
+      }
+      if (next.length > 1 && next[0].src === current[0].src) {
+        [next[0], next[1]] = [next[1], next[0]];
+      }
+      return next;
+    });
+    setShuffleCount((count) => count + 1);
+    const rail = railRef.current;
+    if (rail && typeof rail.scrollTo === "function") {
+      rail.scrollTo({
+        left: 0,
+        behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
+          ? "auto"
+          : "smooth",
+      });
+    }
   };
 
   const close = () => {
     onSound?.("click");
     dialogRef.current?.close();
   };
-  const photo = photos[selected ?? 0];
+  const photo = galleryPhotos[selected ?? 0];
 
   return (
     <section
@@ -188,7 +216,7 @@ export default function PhotoGallery({
           aria-label="Photographs of Mirabel"
           tabIndex={0}
         >
-          {photos.map((item, index) => (
+          {galleryPhotos.map((item, index) => (
             <button
               key={item.src}
               type="button"
@@ -196,7 +224,7 @@ export default function PhotoGallery({
               data-gallery-photo
               style={
                 {
-                  "--rotation": `${ROTATIONS[index % ROTATIONS.length]}deg`,
+                  "--rotation": `${ROTATIONS[(index + shuffleCount) % ROTATIONS.length]}deg`,
                 } as CSSProperties
               }
               aria-label={`Enlarge photograph ${index + 1}: ${item.alt}`}
@@ -227,7 +255,9 @@ export default function PhotoGallery({
                   }
                 />
                 {index === 0 && (
-                  <span className={styles.newest}>Newest photo</span>
+                  <span className={styles.newest}>
+                    {shuffleCount > 0 ? "Featured pick" : "Newest photo"}
+                  </span>
                 )}
                 {failedThumbnails.has(item.src) && (
                   <span className={styles.thumbnailError}>
@@ -258,18 +288,28 @@ export default function PhotoGallery({
               {visibleRange.end > visibleRange.start
                 ? `–${visibleRange.end}`
                 : ""}{" "}
-              of {photos.length} photos
+              of {galleryPhotos.length} photos
             </span>
-            <span>Swipe to see more.</span>
+            <span>Swipe to see more, or shuffle the deck.</span>
           </p>
-          <button
-            type="button"
-            className={styles.viewAll}
-            onClick={(event) => openPhoto(0, event.currentTarget)}
-          >
-            View all {photos.length} photos{" "}
-            <Expand size={13} aria-hidden="true" />
-          </button>
+          <div className={styles.footerActions}>
+            <button
+              type="button"
+              className={styles.shuffleBtn}
+              onClick={shufflePhotos}
+            >
+              <Shuffle size={13} aria-hidden="true" />
+              Shuffle frames
+            </button>
+            <button
+              type="button"
+              className={styles.viewAll}
+              onClick={(event) => openPhoto(0, event.currentTarget)}
+            >
+              View all {galleryPhotos.length} photos{" "}
+              <Expand size={13} aria-hidden="true" />
+            </button>
+          </div>
           <div className={styles.arrows}>
             <button
               type="button"
@@ -383,7 +423,7 @@ export default function PhotoGallery({
             <div aria-live="polite" aria-atomic="true">
               <p id="photo-caption">{photo.caption}</p>
               <span>
-                {(selected ?? 0) + 1} / {photos.length}
+                {(selected ?? 0) + 1} / {galleryPhotos.length}
               </span>
             </div>
             <button

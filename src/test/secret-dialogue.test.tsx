@@ -217,5 +217,40 @@ describe("Ball & Action Sound Effects", () => {
     await user.click(btn);
     expect(onSound).toHaveBeenCalledWith("terminal");
   });
+
+  it("allows shuffling gallery frames and swapping the hero polaroid", async () => {
+    const user = userEvent.setup();
+    render(<Experience />);
+
+    // Swap hero polaroid frame
+    expect(screen.getByText("the one & only, Mirabel.")).toBeTruthy();
+    const swapBtn = screen.getByRole("button", {
+      name: "Swap polaroid photograph",
+    });
+    await user.click(swapBtn);
+    expect(screen.getByText("sunshine in every single frame.")).toBeTruthy();
+
+    // Send a little love heart reaction
+    const loveBtn = screen.getByRole("button", {
+      name: "Send a little love to Mirabel",
+    });
+    await user.click(loveBtn);
+    expect(within(loveBtn).getByText("1")).toBeTruthy();
+
+    // Shuffle gallery frames
+    const rail = screen.getByRole("region", { name: "Photographs of Mirabel" });
+    const firstBefore = within(rail)
+      .getAllByRole("button")[0]
+      .getAttribute("aria-label");
+
+    const shuffleBtn = screen.getByRole("button", { name: /Shuffle frames/i });
+    await user.click(shuffleBtn);
+
+    const firstAfter = within(rail)
+      .getAllByRole("button")[0]
+      .getAttribute("aria-label");
+    expect(firstAfter).not.toBe(firstBefore);
+    expect(screen.getByText("Featured pick")).toBeTruthy();
+  });
 });
 

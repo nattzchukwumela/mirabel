@@ -600,6 +600,45 @@ h1 em {
   position: relative;
   overflow: hidden;
 }
+.hero-photo-wrap img {
+  transition: transform 0.5s ease;
+}
+.hero-polaroid:hover .hero-photo-wrap img {
+  transform: scale(1.025);
+}
+.hero-frame-swap {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(255, 253, 248, 0.88);
+  backdrop-filter: blur(6px);
+  color: var(--purple-deep);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  box-shadow: 0 2px 10px rgba(42, 28, 52, 0.14);
+  transition:
+    transform 0.2s,
+    background 0.2s;
+}
+[data-theme="night"] .hero-frame-swap {
+  background: rgba(45, 39, 53, 0.88);
+  color: var(--purple);
+}
+.hero-frame-swap:hover {
+  transform: translateY(-1px);
+  background: var(--surface);
+}
+.hero-frame-swap:active svg {
+  transform: rotate(90deg);
+}
 .polaroid-caption {
   height: 69px;
   display: flex;
@@ -615,6 +654,58 @@ h1 em {
 .polaroid-caption > svg {
   color: var(--purple);
   transform: rotate(-12deg);
+}
+.polaroid-heart-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 0;
+  background: none;
+  padding: 4px 6px;
+  border-radius: 999px;
+  color: var(--purple);
+  transform: rotate(-8deg);
+  transition:
+    transform 0.2s,
+    color 0.2s,
+    background 0.2s;
+}
+.polaroid-heart-btn:hover {
+  background: var(--lavender);
+  transform: rotate(0deg) scale(1.08);
+}
+.polaroid-heart-btn.is-loved {
+  color: #d46a8c;
+}
+.polaroid-heart-count {
+  font-size: 10px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+}
+.floating-hearts-wrap {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.floating-hearts-wrap > i {
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  font-style: normal;
+  font-size: 14px;
+  color: #d46a8c;
+  animation: polaroidHeartFloat 1s ease-out forwards;
+}
+@keyframes polaroidHeartFloat {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(0.7);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--heart-x, 0px)), -46px) scale(1.25);
+  }
 }
 .photo-paper-back {
   position: absolute;
