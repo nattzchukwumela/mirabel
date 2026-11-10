@@ -48,6 +48,8 @@ import {
   VolleyballGame,
 } from "./playground";
 import PhotoGallery from "./photo-gallery";
+import SecretDialogue from "./secret-dialogue";
+import MusicPromptDialog from "./music-prompt-dialog";
 import { useExperienceAudio } from "@/lib/use-experience-audio";
 import { letter, lullaby } from "@/lib/personalization";
 
@@ -750,11 +752,11 @@ function Surprise({
               animate={
                 opened
                   ? {
-                      y: reduced ? -30 : -115,
-                      rotate: reduced ? 0 : -22,
-                      x: reduced ? 0 : -35,
-                      opacity: 0,
-                    }
+                    y: reduced ? -30 : -115,
+                    rotate: reduced ? 0 : -22,
+                    x: reduced ? 0 : -35,
+                    opacity: 0,
+                  }
                   : { y: 0, rotate: 0, x: 0, opacity: 1 }
               }
               transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
@@ -825,7 +827,11 @@ function Surprise({
   );
 }
 
-export default function Experience() {
+export default function Experience({
+  defaultSecretOpen,
+}: {
+  defaultSecretOpen?: boolean;
+} = {}) {
   const [theme, setTheme] = useState("day");
   const [menuOpen, setMenuOpen] = useState(false);
   const [soundPanel, setSoundPanel] = useState(false);
@@ -835,6 +841,10 @@ export default function Experience() {
   const [found, setFound] = useState<number[]>([]);
   const [toast, setToast] = useState("");
   const [secretOpen, setSecretOpen] = useState(false);
+  const [secretDispatchOpen, setSecretDispatchOpen] = useState(
+    defaultSecretOpen ?? (process.env.NODE_ENV !== "test"),
+  );
+  const [musicPromptOpen, setMusicPromptOpen] = useState(false);
   const [shareFallback, setShareFallback] = useState("");
   const secretDialog = useRef<HTMLDialogElement>(null);
   const soundTrigger = useRef<HTMLButtonElement | null>(null);
@@ -1571,6 +1581,46 @@ export default function Experience() {
         </span>
       </dialog>
       <Confetti active={confetti} />
+      <SecretDialogue
+        isOpen={secretDispatchOpen}
+        onClose={() => {
+          setSecretDispatchOpen(false);
+          if (!audio.musicOn) {
+            setMusicPromptOpen(true);
+          }
+        }}
+        audio={audio}
+        onTriggerConfetti={() => {
+          setConfetti(true);
+          if (confettiTimer.current) clearTimeout(confettiTimer.current);
+          confettiTimer.current = setTimeout(() => setConfetti(false), 6500);
+        }}
+        onOpenMusicPrompt={() => {
+          if (!audio.musicOn) {
+            setMusicPromptOpen(true);
+          }
+        }}
+      />
+      <MusicPromptDialog
+        isOpen={musicPromptOpen}
+        onClose={() => setMusicPromptOpen(false)}
+        onAccept={() => {
+          if (!audio.musicOn) audio.toggleMusic();
+          audio.playEffect("sparkle");
+          setMusicPromptOpen(false);
+        }}
+        musicOn={audio.musicOn}
+      />
+      {!secretDispatchOpen && (
+        <button
+          className="secret-dispatch-pill"
+          onClick={() => setSecretDispatchOpen(true)}
+          aria-label="Open secret letter from Nattz"
+        >
+          <Heart size={14} className="text-[var(--gold)] fill-[var(--gold)]" />
+          <span>From Nattz ✉</span>
+        </button>
+      )}
     </MotionConfig>
   );
 }

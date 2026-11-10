@@ -220,13 +220,13 @@ describe("The Mirabel Experience", () => {
     const rail = screen.getByRole("region", { name: "Photographs of Mirabel" });
     const firstPhoto = within(rail).getAllByRole("button")[0];
     const thumbnail = within(firstPhoto).getByRole("img") as HTMLImageElement;
-    expect(thumbnail.getAttribute("src")).toBe("/images/miri-yet.jpeg");
+    expect(thumbnail.getAttribute("src")).toBe(photos[0].src);
     expect(thumbnail.getAttribute("loading")).toBe("eager");
     expect(within(firstPhoto).getByText("Newest photo")).toBeTruthy();
     await user.click(firstPhoto);
     const dialog = screen.getByRole("dialog", { name: photos[0].caption });
     const image = within(dialog).getByRole("img") as HTMLImageElement;
-    expect(image.getAttribute("src")).toBe("/images/miri-yet.jpeg");
+    expect(image.getAttribute("src")).toBe(photos[0].src);
     expect(image.getAttribute("loading")).toBe("eager");
     expect(within(dialog).getByText(`1 / ${photos.length}`)).toBeTruthy();
   });
