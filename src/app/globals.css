@@ -2365,9 +2365,13 @@ h1 em {
 .lullaby-lyrics {
   white-space: pre-line;
   font-family: var(--font-hand);
-  font-size: 26px;
-  line-height: 1.6;
-  margin-block: 28px;
+  font-size: 23px;
+  line-height: 1.55;
+  margin-block: 24px;
+  padding: 22px 20px;
+  background: var(--lavender);
+  border: 1px solid var(--line);
+  border-radius: 14px;
   color: var(--purple);
 }
 .lullaby-dialog > audio {

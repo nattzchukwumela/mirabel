@@ -347,7 +347,7 @@ describe("The Mirabel Experience", () => {
     expect((dialog as HTMLDialogElement).open).toBe(true);
     expect(document.body.style.overflow).toBe("hidden");
     expect(
-      within(dialog).getByText(/A little space saved for an original lullaby/),
+      within(dialog).getByText(/Hush now, Mirabel, close your bright eyes/),
     ).toBeTruthy();
     await user.click(
       within(dialog).getByRole("button", { name: "Close the lullaby" }),
