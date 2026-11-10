@@ -2,7 +2,19 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-type SoundKind = "error" | "success" | "sparkle";
+export type SoundKind =
+  | "error"
+  | "success"
+  | "sparkle"
+  | "click"
+  | "tab"
+  | "toggle"
+  | "paper"
+  | "terminal"
+  | "ball_serve"
+  | "ball_bump"
+  | "ball_bounce"
+  | "ball_drop";
 type Voice = { oscillator: OscillatorNode; gain: GainNode; music: boolean };
 type AudioEngine = {
   context: AudioContext;
@@ -57,10 +69,11 @@ function tone(
   duration: number,
   level: number,
   music: boolean,
+  type: OscillatorType = "sine",
 ) {
   const oscillator = engine.context.createOscillator();
   const gain = engine.context.createGain();
-  oscillator.type = "sine";
+  oscillator.type = type;
   oscillator.frequency.value = frequency;
   gain.gain.setValueAtTime(0, start);
   gain.gain.linearRampToValueAtTime(
@@ -79,6 +92,39 @@ function tone(
   };
   oscillator.start(start);
   oscillator.stop(start + duration + 0.04);
+}
+
+function sweep(
+  engine: AudioEngine,
+  startFreq: number,
+  endFreq: number,
+  start: number,
+  duration: number,
+  level: number,
+  type: OscillatorType = "sine",
+) {
+  const oscillator = engine.context.createOscillator();
+  const gain = engine.context.createGain();
+  oscillator.type = type;
+  oscillator.frequency.setValueAtTime(startFreq, start);
+  oscillator.frequency.exponentialRampToValueAtTime(
+    Math.max(20, endFreq),
+    start + duration,
+  );
+  gain.gain.setValueAtTime(0, start);
+  gain.gain.linearRampToValueAtTime(level, start + Math.min(0.015, duration / 4));
+  gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+  oscillator.connect(gain);
+  gain.connect(engine.master);
+  const voice = { oscillator, gain, music: false };
+  engine.voices.add(voice);
+  oscillator.onended = () => {
+    engine.voices.delete(voice);
+    oscillator.disconnect();
+    gain.disconnect();
+  };
+  oscillator.start(start);
+  oscillator.stop(start + duration + 0.03);
 }
 
 function scheduleChord(engine: AudioEngine) {
@@ -250,15 +296,67 @@ export function useExperienceAudio() {
         )
           return;
         const start = engine.context.currentTime + 0.01;
-        const notes =
-          kind === "error"
-            ? [293.66, 220]
-            : kind === "success"
-              ? [523.25, 659.25, 783.99]
-              : [659.25, 987.77, 1318.51];
-        notes.forEach((frequency, index) => {
-          tone(engine, frequency, start + index * 0.09, 0.4, 0.09, false);
-        });
+        switch (kind) {
+          case "click":
+            // Crisp, warm tactile UI tap
+            sweep(engine, 640, 360, start, 0.045, 0.065, "sine");
+            break;
+          case "tab":
+            // Gentle two-note kalimba chime
+            tone(engine, 440, start, 0.14, 0.06, false, "sine");
+            tone(engine, 554.37, start + 0.055, 0.18, 0.055, false, "sine");
+            break;
+          case "toggle":
+            // Soft bubble pop
+            sweep(engine, 380, 587.33, start, 0.085, 0.07, "sine");
+            break;
+          case "paper":
+            // Soft three-note warm unfold chord
+            [329.63, 392, 523.25].forEach((freq, idx) => {
+              tone(engine, freq, start + idx * 0.045, 0.28, 0.055, false, "sine");
+            });
+            break;
+          case "terminal":
+            // Retro soft computer chirp
+            tone(engine, 783.99, start, 0.07, 0.055, false, "triangle");
+            tone(engine, 987.77, start + 0.06, 0.09, 0.055, false, "triangle");
+            break;
+          case "ball_serve":
+            // Cheerful upward serve pop
+            sweep(engine, 310, 520, start, 0.13, 0.1, "triangle");
+            tone(engine, 659.25, start + 0.06, 0.16, 0.06, false, "sine");
+            break;
+          case "ball_bump":
+            // Hollow resonant volleyball bump ("pock" / thump)
+            sweep(engine, 220, 125, start, 0.11, 0.14, "triangle");
+            sweep(engine, 440, 260, start, 0.06, 0.065, "sine");
+            break;
+          case "ball_bounce":
+            // Soft high rebound off the top boundary
+            sweep(engine, 300, 190, start, 0.075, 0.075, "sine");
+            break;
+          case "ball_drop":
+            // Double floor thud when the ball lands on the court
+            sweep(engine, 160, 62, start, 0.16, 0.14, "triangle");
+            sweep(engine, 125, 55, start + 0.13, 0.11, 0.08, "sine");
+            break;
+          case "error":
+            [293.66, 220].forEach((frequency, index) => {
+              tone(engine, frequency, start + index * 0.09, 0.4, 0.09, false);
+            });
+            break;
+          case "success":
+            [523.25, 659.25, 783.99].forEach((frequency, index) => {
+              tone(engine, frequency, start + index * 0.09, 0.4, 0.09, false);
+            });
+            break;
+          case "sparkle":
+          default:
+            [659.25, 987.77, 1318.51].forEach((frequency, index) => {
+              tone(engine, frequency, start + index * 0.09, 0.4, 0.09, false);
+            });
+            break;
+        }
       });
     },
     [ensureAudio],

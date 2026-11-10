@@ -3,6 +3,8 @@ import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import SecretDialogue from "@/components/secret-dialogue";
 import MusicPromptDialog from "@/components/music-prompt-dialog";
+import AudioPlayer from "@/components/AudioPlayer";
+import { VolleyballGame, ComplimentTerminal } from "@/components/playground";
 import Experience from "@/components/experience";
 
 describe("Secret Dialogue for Mirabel", () => {
@@ -183,6 +185,64 @@ describe("Experience initial pop-up", () => {
 
     expect(screen.getByText("From: Nattz")).toBeTruthy();
     expect(screen.getByLabelText(/Secret password/i)).toBeTruthy();
+  });
+});
+
+describe("AudioPlayer Component", () => {
+  it("renders with soothing piano sources and toggles playback", async () => {
+    const user = userEvent.setup();
+    const playSpy = vi
+      .spyOn(window.HTMLMediaElement.prototype, "play")
+      .mockImplementation(() => Promise.resolve());
+    const pauseSpy = vi
+      .spyOn(window.HTMLMediaElement.prototype, "pause")
+      .mockImplementation(() => {});
+
+    render(<AudioPlayer />);
+
+    const button = screen.getByRole("button", {
+      name: /Play soothing piano music/i,
+    });
+    expect(button).toBeTruthy();
+    expect(screen.getByText("Play Music")).toBeTruthy();
+
+    await user.click(button);
+    expect(playSpy).toHaveBeenCalled();
+
+    playSpy.mockRestore();
+    pauseSpy.mockRestore();
+  });
+});
+
+describe("Ball & Action Sound Effects", () => {
+  it("plays ball_serve when starting the volleyball game and ball_bump on bumps", async () => {
+    const user = userEvent.setup();
+    const onSound = vi.fn();
+
+    render(<VolleyballGame onSound={onSound} />);
+
+    const court = screen.getByRole("button", {
+      name: /Start the volleyball game/i,
+    });
+    await user.click(court);
+    expect(onSound).toHaveBeenCalledWith("ball_serve");
+
+    await new Promise((resolve) => window.setTimeout(resolve, 180));
+    await user.click(court);
+    expect(onSound).toHaveBeenCalledWith("ball_bump");
+  });
+
+  it("plays terminal sound when running another compliment", async () => {
+    const user = userEvent.setup();
+    const onSound = vi.fn();
+
+    render(<ComplimentTerminal onSound={onSound} />);
+
+    const btn = screen.getByRole("button", {
+      name: /Run another compliment/i,
+    });
+    await user.click(btn);
+    expect(onSound).toHaveBeenCalledWith("terminal");
   });
 });
 

@@ -19,11 +19,16 @@ import {
   Trophy,
 } from "lucide-react";
 import styles from "./playground.module.css";
+import type { SoundKind } from "@/lib/use-experience-audio";
 
 type GamePhase = "ready" | "playing" | "over";
 
 /** A little keep-up game. The entire court is a generous, keyboard-accessible target. */
-export function VolleyballGame() {
+export function VolleyballGame({
+  onSound,
+}: {
+  onSound?: (kind: SoundKind) => void;
+}) {
   const reducedMotion = useReducedMotion();
   const [phase, setPhase] = useState<GamePhase>("ready");
   const [score, setScore] = useState(0);
@@ -33,6 +38,8 @@ export function VolleyballGame() {
   const physics = useRef({ y: 44, velocity: -44, time: 0, lastHit: 0 });
   const scoreRef = useRef(0);
   const visible = useRef(true);
+  const onSoundRef = useRef(onSound);
+  onSoundRef.current = onSound;
 
   useEffect(() => {
     try {
@@ -66,10 +73,12 @@ export function VolleyballGame() {
       state.velocity += (reducedMotion ? 40 : 68) * dt;
       state.y += state.velocity * dt;
       if (state.y < 8) {
+        if (state.velocity < 0) onSoundRef.current?.("ball_bounce");
         state.y = 8;
         state.velocity = Math.abs(state.velocity) * 0.55;
       }
       if (state.y >= 79) {
+        onSoundRef.current?.("ball_drop");
         setPhase("over");
         setPosition({
           x: 50 + Math.sin(state.time * 1.4) * 27,
@@ -100,6 +109,7 @@ export function VolleyballGame() {
 
   const hit = () => {
     if (phase !== "playing") {
+      onSound?.("ball_serve");
       physics.current = {
         y: 44,
         velocity: reducedMotion ? -32 : -44,
@@ -118,6 +128,10 @@ export function VolleyballGame() {
     physics.current.velocity = reducedMotion ? -33 : -48;
     scoreRef.current += 1;
     setScore(scoreRef.current);
+    onSound?.("ball_bump");
+    if (scoreRef.current > 0 && scoreRef.current % 5 === 0) {
+      onSound?.("sparkle");
+    }
   };
 
   return (
@@ -218,7 +232,11 @@ const extraCompliments = [
   "Friendship status: very, very appreciated.",
 ];
 
-export function ComplimentTerminal() {
+export function ComplimentTerminal({
+  onSound,
+}: {
+  onSound?: (kind: SoundKind) => void;
+}) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, amount: 0.3 });
   const reducedMotion = useReducedMotion();
@@ -278,7 +296,10 @@ export function ComplimentTerminal() {
         <button
           type="button"
           className={styles.terminalButton}
-          onClick={() => setRun((previous) => previous + 1)}
+          onClick={() => {
+            onSound?.("terminal");
+            setRun((previous) => previous + 1);
+          }}
           disabled={!complete}
         >
           <RotateCcw size={12} aria-hidden="true" /> Run another compliment{" "}

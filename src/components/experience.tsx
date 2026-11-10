@@ -50,7 +50,7 @@ import {
 import PhotoGallery from "./photo-gallery";
 import SecretDialogue from "./secret-dialogue";
 import MusicPromptDialog from "./music-prompt-dialog";
-import { useExperienceAudio } from "@/lib/use-experience-audio";
+import { useExperienceAudio, type SoundKind } from "@/lib/use-experience-audio";
 import { letter, lullaby } from "@/lib/personalization";
 
 const chapters = [
@@ -212,7 +212,13 @@ function Confetti({ active }: { active: boolean }) {
   );
 }
 
-function PersonalityFiles({ onFind }: { onFind: (id: number) => void }) {
+function PersonalityFiles({
+  onFind,
+  onSound,
+}: {
+  onFind: (id: number) => void;
+  onSound?: (kind: SoundKind) => void;
+}) {
   const [flipped, setFlipped] = useState(false);
   return (
     <section
@@ -309,7 +315,10 @@ function PersonalityFiles({ onFind }: { onFind: (id: number) => void }) {
           <button
             className="hidden-ability"
             aria-expanded={flipped}
-            onClick={() => setFlipped(!flipped)}
+            onClick={() => {
+              onSound?.("toggle");
+              setFlipped(!flipped);
+            }}
           >
             <Sparkles size={15} />
             <span>
@@ -368,7 +377,7 @@ const interests = [
   },
 ];
 
-function Bookshelf() {
+function Bookshelf({ onSound }: { onSound?: (kind: SoundKind) => void }) {
   const [selected, setSelected] = useState<number | null>(null);
   const books = ["Lights Out", "Caught Up", "Game On"];
   return (
@@ -380,7 +389,10 @@ function Bookshelf() {
             type="button"
             className={`book book-${i} ${selected === i ? "book-selected" : ""}`}
             key={book}
-            onClick={() => setSelected(selected === i ? null : i)}
+            onClick={() => {
+              onSound?.("tab");
+              setSelected(selected === i ? null : i);
+            }}
             aria-pressed={selected === i}
             aria-label={`Explore ${book} by Navessa Allen`}
           >
@@ -441,10 +453,11 @@ function FaithScene() {
   );
 }
 
-function LittleUniverse() {
+function LittleUniverse({ onSound }: { onSound?: (kind: SoundKind) => void }) {
   const [active, setActive] = useState(0);
   const item = interests[active];
   const select = (index: number, focus = false) => {
+    onSound?.("tab");
     setActive(index);
     if (focus) document.getElementById(`interest-tab-${index}`)?.focus();
   };
@@ -532,11 +545,11 @@ function LittleUniverse() {
           </AnimatePresence>
           <div className="interest-playground" key={item.id}>
             {active === 0 ? (
-              <VolleyballGame />
+              <VolleyballGame onSound={onSound} />
             ) : active === 1 ? (
-              <Bookshelf />
+              <Bookshelf onSound={onSound} />
             ) : active === 2 ? (
-              <ComplimentTerminal />
+              <ComplimentTerminal onSound={onSound} />
             ) : (
               <FaithScene />
             )}
@@ -551,7 +564,11 @@ function LittleUniverse() {
   );
 }
 
-function AppreciationLetter() {
+function AppreciationLetter({
+  onSound,
+}: {
+  onSound?: (kind: SoundKind) => void;
+}) {
   const [open, setOpen] = useState(false);
   const [visible, setVisible] = useState(1);
   const reduced = useReducedMotion();
@@ -596,6 +613,7 @@ function AppreciationLetter() {
             <button
               className="envelope"
               onClick={() => {
+                onSound?.("paper");
                 setOpen(true);
                 window.setTimeout(
                   () => readAll.current?.focus({ preventScroll: true }),
@@ -623,6 +641,7 @@ function AppreciationLetter() {
             <button
               className="text-button"
               onClick={() => {
+                onSound?.("paper");
                 setOpen(true);
                 window.setTimeout(
                   () => readAll.current?.focus({ preventScroll: true }),
@@ -646,7 +665,10 @@ function AppreciationLetter() {
               <button
                 ref={readAll}
                 className="text-button"
-                onClick={() => setVisible(letter.length)}
+                onClick={() => {
+                  onSound?.("paper");
+                  setVisible(letter.length);
+                }}
                 aria-disabled={visible >= letter.length}
               >
                 {visible >= letter.length ? (
@@ -890,6 +912,7 @@ export default function Experience({
   }, []);
 
   const toggleSoundPanel = (trigger: HTMLButtonElement) => {
+    audio.playEffect("click");
     if (soundPanel) {
       closeSoundPanel();
       return;
@@ -954,6 +977,7 @@ export default function Experience({
   };
 
   const toggleTheme = () => {
+    audio.playEffect("toggle");
     const next = theme === "day" ? "night" : "day";
     setTheme(next);
     document.documentElement.dataset.theme = next;
@@ -965,6 +989,7 @@ export default function Experience({
   };
 
   const share = async () => {
+    audio.playEffect("success");
     const url = window.location.href.split("#")[0];
     if (navigator.share) {
       try {
@@ -1321,16 +1346,17 @@ export default function Experience({
             ))}
           </div>
         </div>
-        <PersonalityFiles onFind={findStar} />
-        <LittleUniverse />
+        <PersonalityFiles onFind={findStar} onSound={audio.playEffect} />
+        <LittleUniverse onSound={audio.playEffect} />
         <PhotoGallery
           soundOn={audio.soundOn}
           volume={audio.volume}
+          onSound={audio.playEffect}
           onVideoPlay={() => {
             if (audio.musicOn) audio.toggleMusic();
           }}
         />
-        <AppreciationLetter />
+        <AppreciationLetter onSound={audio.playEffect} />
         <section
           className="meter-section section-space"
           id="appreciation"
@@ -1458,7 +1484,10 @@ export default function Experience({
           <SecretStar id={3} onFind={findStar} className="final-secret" />
           <div className="secret-corner">
             <button
-              onClick={() => setSecretOpen(true)}
+              onClick={() => {
+                audio.playEffect("paper");
+                setSecretOpen(true);
+              }}
               aria-label="Discover the secret lullaby"
             >
               <Moon size={18} strokeWidth={1.2} />
@@ -1514,7 +1543,10 @@ export default function Experience({
               <Sparkles size={17} />
               <span>{toast}</span>
               <button
-                onClick={() => setToast("")}
+                onClick={() => {
+                  audio.playEffect("click");
+                  setToast("");
+                }}
                 aria-label="Dismiss little note"
               >
                 <X size={16} />
@@ -1528,13 +1560,19 @@ export default function Experience({
         className="lullaby-dialog"
         onClose={() => setSecretOpen(false)}
         onClick={(e) => {
-          if (e.target === e.currentTarget) setSecretOpen(false);
+          if (e.target === e.currentTarget) {
+            audio.playEffect("click");
+            setSecretOpen(false);
+          }
         }}
         aria-labelledby="lullaby-heading"
       >
         <button
           className="icon-button dialog-close"
-          onClick={() => setSecretOpen(false)}
+          onClick={() => {
+            audio.playEffect("click");
+            setSecretOpen(false);
+          }}
           aria-label="Close the lullaby"
         >
           <X size={20} />
@@ -1603,9 +1641,13 @@ export default function Experience({
       />
       <MusicPromptDialog
         isOpen={musicPromptOpen}
-        onClose={() => setMusicPromptOpen(false)}
+        onClose={() => {
+          audio.playEffect("click");
+          setMusicPromptOpen(false);
+        }}
         onAccept={() => {
           if (!audio.musicOn) audio.toggleMusic();
+          window.dispatchEvent(new Event("mirabel:play-piano"));
           audio.playEffect("sparkle");
           setMusicPromptOpen(false);
         }}
@@ -1614,7 +1656,10 @@ export default function Experience({
       {!secretDispatchOpen && (
         <button
           className="secret-dispatch-pill"
-          onClick={() => setSecretDispatchOpen(true)}
+          onClick={() => {
+            audio.playEffect("paper");
+            setSecretDispatchOpen(true);
+          }}
           aria-label="Open secret letter from Nattz"
         >
           <Heart size={14} className="text-[var(--gold)] fill-[var(--gold)]" />

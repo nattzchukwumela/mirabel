@@ -20,6 +20,7 @@ import {
 import photos from "../../public/images/manifest.json";
 import VideoKeepsake from "./video-keepsake";
 import styles from "./photo-gallery.module.css";
+import type { SoundKind } from "@/lib/use-experience-audio";
 
 const ROTATIONS = [-3, 2, -1.8, 3, -2.4, 1.6, -2, 2.5, -1];
 
@@ -27,12 +28,14 @@ type PhotoGalleryProps = {
   soundOn?: boolean;
   volume?: number;
   onVideoPlay?: () => void;
+  onSound?: (kind: SoundKind) => void;
 };
 
 export default function PhotoGallery({
   soundOn = true,
   volume = 0.35,
   onVideoPlay,
+  onSound,
 }: PhotoGalleryProps) {
   const railRef = useRef<HTMLDivElement>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -96,6 +99,7 @@ export default function PhotoGallery({
   const scroll = (direction: number) => {
     const rail = railRef.current;
     if (!rail) return;
+    onSound?.("click");
     const items = Array.from(
       rail.querySelectorAll<HTMLButtonElement>("[data-gallery-photo]"),
     );
@@ -125,6 +129,7 @@ export default function PhotoGallery({
   };
 
   const openPhoto = (index: number, trigger: HTMLButtonElement) => {
+    onSound?.("paper");
     triggerRef.current = trigger;
     setImageLoading(true);
     setImageError(false);
@@ -133,6 +138,7 @@ export default function PhotoGallery({
   };
 
   const changePhoto = (direction: number) => {
+    onSound?.("click");
     setImageLoading(true);
     setImageError(false);
     setRetry(0);
@@ -143,7 +149,10 @@ export default function PhotoGallery({
     );
   };
 
-  const close = () => dialogRef.current?.close();
+  const close = () => {
+    onSound?.("click");
+    dialogRef.current?.close();
+  };
   const photo = photos[selected ?? 0];
 
   return (

@@ -20,6 +20,7 @@ import {
   Pause,
   Play,
 } from "lucide-react";
+import type { SoundKind } from "@/lib/use-experience-audio";
 
 interface SecretDialogueProps {
   isOpen: boolean;
@@ -29,7 +30,7 @@ interface SecretDialogueProps {
     soundOn: boolean;
     toggleMusic: () => void;
     toggleSound: () => void;
-    playEffect: (kind: "error" | "success" | "sparkle") => void;
+    playEffect: (kind: SoundKind) => void;
   };
   onTriggerConfetti?: () => void;
   onOpenMusicPrompt?: () => void;
@@ -141,11 +142,16 @@ export default function SecretDialogue({
   };
 
   const handleRelock = () => {
-    audio.playEffect("sparkle");
+    audio.playEffect("toggle");
     setIsUnlocked(false);
     setPassword("");
     setErrorMsg("");
     setShowHint(false);
+  };
+
+  const handleClose = () => {
+    audio.playEffect("click");
+    onClose();
   };
 
   return (
@@ -214,7 +220,7 @@ export default function SecretDialogue({
                 <button
                   type="button"
                   className="secret-close-btn"
-                  onClick={onClose}
+                  onClick={handleClose}
                   aria-label="Close dialogue"
                 >
                   <X size={18} strokeWidth={1.5} />
@@ -242,7 +248,10 @@ export default function SecretDialogue({
               <button
                 type="button"
                 className="secret-music-toggle-btn"
-                onClick={audio.toggleMusic}
+                onClick={() => {
+                  audio.playEffect("toggle");
+                  audio.toggleMusic();
+                }}
                 aria-label={audio.musicOn ? "Pause music" : "Play music"}
               >
                 {audio.musicOn ? (
@@ -461,7 +470,7 @@ export default function SecretDialogue({
 
                   <button
                     type="button"
-                    onClick={onClose}
+                    onClick={handleClose}
                     className="secret-action-btn action-explore"
                   >
                     <Sparkles size={14} />
