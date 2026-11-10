@@ -902,7 +902,9 @@ export default function Experience({
   const [toast, setToast] = useState("");
   const [secretOpen, setSecretOpen] = useState(false);
   const [secretDispatchOpen, setSecretDispatchOpen] = useState(
-    defaultSecretOpen ?? (process.env.NODE_ENV !== "test"),
+    defaultGateOpen
+      ? false
+      : (defaultSecretOpen ?? (process.env.NODE_ENV !== "test")),
   );
   const [musicPromptOpen, setMusicPromptOpen] = useState(false);
   const [heroFrameIndex, setHeroFrameIndex] = useState(0);
@@ -1770,6 +1772,9 @@ export default function Experience({
       <MobileGate
         onSound={audio.playEffect}
         defaultOpen={defaultGateOpen}
+        onUnlock={() => {
+          setSecretDispatchOpen(true);
+        }}
       />
     </MotionConfig>
   );

@@ -371,19 +371,27 @@ describe("Mobile Blocker Gate (Infinix Hot 60i & Phone Detection)", () => {
   it("blocks other phones, displays the hilarious message, enforces lowercase, and requires passing the 3-step stress quiz (model, RAM/ROM, CPU)", async () => {
     const user = userEvent.setup();
     const onSound = vi.fn();
+    const onUnlock = vi.fn();
     sessionStorage.clear();
 
     render(
       <MobileGate
         onSound={onSound}
+        onUnlock={onUnlock}
         forceDevice={{ kind: "phone", label: "Mobile Phone" }}
         defaultOpen={true}
-      />,
+      />
     );
 
-    // 1. Verify hilarious callout
+    // 1. Verify hilarious callout and privacy notice
     expect(
       screen.getByText(/Really, you are using a phone\?! 😂 I told you not to cheat jeez, use a PC!/i),
+    ).toBeTruthy();
+    expect(
+      screen.getByText(/PRIVATE ACCESS ONLY • FOR MIRABEL/i),
+    ).toBeTruthy();
+    expect(
+      screen.getByText(/This website is exclusively dedicated to Mirabel/i),
     ).toBeTruthy();
 
     // Step 1: Model check
@@ -446,6 +454,7 @@ describe("Mobile Blocker Gate (Infinix Hot 60i & Phone Detection)", () => {
     await user.click(unlockBtn);
     expect(onSound).toHaveBeenCalledWith("success");
     expect(screen.getByText(/Fine, you win!! 😂 You really stressed yourself/i)).toBeTruthy();
+    await waitFor(() => expect(onUnlock).toHaveBeenCalledTimes(1), { timeout: 2000 });
   });
 });
 

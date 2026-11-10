@@ -123,12 +123,14 @@ type MobileGateProps = {
   /** Optional override for testing */
   forceDevice?: DeviceDetectionResult | null;
   defaultOpen?: boolean;
+  onUnlock?: () => void;
 };
 
 export default function MobileGate({
   onSound,
   forceDevice = null,
   defaultOpen,
+  onUnlock,
 }: MobileGateProps) {
   const [device, setDevice] = useState<DeviceDetectionResult>({
     kind: "desktop",
@@ -394,6 +396,7 @@ export default function MobileGate({
       }
       setTimeout(() => {
         setUnlocked(true);
+        onUnlock?.();
       }, 1200);
     } else {
       setError(
@@ -583,7 +586,19 @@ export default function MobileGate({
             </>
           )}
 
-          {/* Step Progress Pills */}
+            {/* Privacy notice just in case someone else gets the link */}
+            <div className="mobile-gate-privacy-notice">
+              <div className="mobile-gate-privacy-header">
+                <Sparkles size={13} className="text-[var(--gold)]" />
+                <span>PRIVATE ACCESS ONLY • FOR MIRABEL</span>
+                <Sparkles size={13} className="text-[var(--gold)]" />
+              </div>
+              <p className="mobile-gate-privacy-body">
+                Notice: <strong>This website is exclusively dedicated to Mirabel.</strong> Just in case someone else got hold of this link: you are not supposed to be here unless you know Nattz personally! If you know me well, you can figure out the questions below to enter.
+              </p>
+            </div>
+
+            {/* Step Progress Pills */}
           <div className="mobile-gate-steps-row">
             <span
               className={`mobile-gate-step-pill ${

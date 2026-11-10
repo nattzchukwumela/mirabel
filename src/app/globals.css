@@ -2999,7 +2999,7 @@ h1 em {
 .mobile-gate-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 260;
+  z-index: 9999;
   background: var(--cream);
   background-image:
     radial-gradient(ellipse at 20% 15%, var(--lavender), transparent 55%),
@@ -3149,6 +3149,33 @@ h1 em {
   margin-top: 6px;
   padding-top: 14px;
   border-top: 1px solid var(--line);
+}
+
+.mobile-gate-privacy-notice {
+  background: var(--lavender);
+  border: 1px dashed var(--purple);
+  border-radius: 14px;
+  padding: 12px 14px;
+  text-align: center;
+  margin-top: 2px;
+}
+
+.mobile-gate-privacy-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--purple-deep);
+}
+
+.mobile-gate-privacy-body {
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: var(--ink);
+  margin-top: 5px;
 }
 
 .mobile-gate-steps-row {
