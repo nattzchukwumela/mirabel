@@ -319,10 +319,10 @@ describe("Mobile Blocker Gate (Infinix Hot 60i & Phone Detection)", () => {
     ).toBeNull();
   });
 
-  it("blocks other phones and unlocks mobile view with password 'redmi 12c'", async () => {
+  it("blocks other phones, displays the hilarious message, enforces lowercase, and requires passing the 3-step stress quiz (model, RAM/ROM, CPU)", async () => {
     const user = userEvent.setup();
     const onSound = vi.fn();
-    sessionStorage.removeItem("mirabel-mobile-unlocked");
+    sessionStorage.clear();
 
     render(
       <MobileGate
@@ -331,28 +331,71 @@ describe("Mobile Blocker Gate (Infinix Hot 60i & Phone Detection)", () => {
       />,
     );
 
-    expect(screen.getByText(/Please use a PC/i)).toBeTruthy();
-    const input = screen.getByLabelText(/Mobile Access Password/i);
-    const unlockBtn = screen.getByRole("button", { name: /Unlock/i });
+    // 1. Verify hilarious callout
+    expect(
+      screen.getByText(/Really, you are using a phone\?! 😂 I told you not to cheat jeez, use a PC!/i),
+    ).toBeTruthy();
+
+    // Step 1: Model check
+    const step1Input = screen.getByPlaceholderText(/Enter phone model in lowercase/i);
+    const nextBtn = screen.getByRole("button", { name: /Next/i });
 
     // Check hint toggle
     expect(screen.queryByText(/the name of my old phone/i)).toBeNull();
     await user.click(screen.getByRole("button", { name: /Need a hint\?/i }));
     expect(screen.getByText(/the name of my old phone/i)).toBeTruthy();
 
-    // Try wrong password
-    await user.type(input, "wrongpass");
+    // Try uppercase input -> MUST be blocked!
+    await user.type(step1Input, "Redmi 12c");
+    await user.click(nextBtn);
+    expect(onSound).toHaveBeenCalledWith("error");
+    expect(screen.getByText(/Uppercase letter detected! 😂 All passwords must be strictly in lowercase!/i)).toBeTruthy();
+
+    // Clear and enter correct strictly lowercase 'redmi 12c'
+    await user.clear(step1Input);
+    await user.type(step1Input, "redmi 12c");
+    await user.click(nextBtn);
+    expect(onSound).toHaveBeenCalledWith("sparkle");
+    expect(screen.getByText(/Wait, you actually got that\?! 😂/i)).toBeTruthy();
+
+    // Step 2: RAM and ROM
+    const ramInput = screen.getByLabelText(/RAM in GB \(numbers only\)/i);
+    const romInput = screen.getByLabelText(/ROM in GB/i);
+    const submitStep2Btn = screen.getByRole("button", { name: /Submit RAM & ROM/i });
+
+    // RAM numbers-only enforcement
+    await user.type(ramInput, "abc3xyz");
+    expect((ramInput as HTMLInputElement).value).toBe("3");
+
+    // Try uppercase ROM
+    await user.type(romInput, "64GB");
+    await user.click(submitStep2Btn);
+    expect(onSound).toHaveBeenCalledWith("error");
+    expect(screen.getByText(/Uppercase letter detected in ROM!/i)).toBeTruthy();
+
+    // Clear ROM and enter lowercase 64gb
+    await user.clear(romInput);
+    await user.type(romInput, "64gb");
+    await user.click(submitStep2Btn);
+    expect(onSound).toHaveBeenCalledWith("sparkle");
+    expect(screen.getByText(/Okay wow, you really know your phone specs 😂/i)).toBeTruthy();
+
+    // Step 3: CPU Manufacturer
+    const cpuInput = screen.getByPlaceholderText(/Enter CPU manufacturer in lowercase/i);
+    const unlockBtn = screen.getByRole("button", { name: /Unlock 😂/i });
+
+    // Try uppercase CPU
+    await user.type(cpuInput, "MediaTek");
     await user.click(unlockBtn);
     expect(onSound).toHaveBeenCalledWith("error");
-    expect(
-      screen.getByText(/Wrong password! Please use a PC to view this site/i),
-    ).toBeTruthy();
+    expect(screen.getByText(/Uppercase detected! 😂 Strictly lowercase only!/i)).toBeTruthy();
 
-    // Enter 'redmi 12c'
-    await user.type(input, "Redmi 12C");
+    // Enter correct lowercase mediatek
+    await user.clear(cpuInput);
+    await user.type(cpuInput, "mediatek");
     await user.click(unlockBtn);
     expect(onSound).toHaveBeenCalledWith("success");
-    expect(screen.queryByText(/Please use a PC/i)).toBeNull();
+    expect(screen.getByText(/Fine, you win!! 😂 You really stressed yourself/i)).toBeTruthy();
   });
 });
 
