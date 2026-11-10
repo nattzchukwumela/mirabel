@@ -7,6 +7,7 @@ import {
   EyeOff,
   KeyRound,
   Laptop,
+  Lightbulb,
   Lock,
   ShieldAlert,
   Smartphone,
@@ -72,6 +73,7 @@ export default function MobileGate({
   const [caughtMirabel, setCaughtMirabel] = useState(false);
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showHint, setShowHint] = useState(false);
   const [error, setError] = useState("");
   const [shaking, setShaking] = useState(false);
 
@@ -302,6 +304,36 @@ export default function MobileGate({
                   >
                     <AlertCircle size={14} className="shrink-0" />
                     <span>{error}</span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <div className="secret-clue-bar">
+                <button
+                  type="button"
+                  className="secret-clue-btn"
+                  onClick={() => {
+                    setShowHint((prev) => !prev);
+                    onSound?.("sparkle");
+                  }}
+                >
+                  <Lightbulb size={13} />
+                  <span>{showHint ? "Hide hint" : "Need a hint?"}</span>
+                </button>
+              </div>
+
+              <AnimatePresence>
+                {showHint && (
+                  <motion.div
+                    className="secret-hint-box"
+                    initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                    animate={{ opacity: 1, height: "auto", marginTop: 6 }}
+                    exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                  >
+                    <span className="font-semibold text-[var(--gold)]">
+                      💡 Hint:
+                    </span>{" "}
+                    the name of my old phone
                   </motion.div>
                 )}
               </AnimatePresence>

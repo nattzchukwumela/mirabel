@@ -335,6 +335,11 @@ describe("Mobile Blocker Gate (Infinix Hot 60i & Phone Detection)", () => {
     const input = screen.getByLabelText(/Mobile Access Password/i);
     const unlockBtn = screen.getByRole("button", { name: /Unlock/i });
 
+    // Check hint toggle
+    expect(screen.queryByText(/the name of my old phone/i)).toBeNull();
+    await user.click(screen.getByRole("button", { name: /Need a hint\?/i }));
+    expect(screen.getByText(/the name of my old phone/i)).toBeTruthy();
+
     // Try wrong password
     await user.type(input, "wrongpass");
     await user.click(unlockBtn);
